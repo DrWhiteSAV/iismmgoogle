@@ -11,7 +11,8 @@ export type SocialNetwork =
   | 'ok'
   | 'tenchat'
   | 'dzen'
-  | 'setka';
+  | 'setka'
+  | 'tiktok';
 
 export interface InlineButton {
   id: string;
@@ -89,12 +90,27 @@ export interface BulletinAd {
   clicks: number;
 }
 
+export interface AdOrder {
+  id: string;
+  title: string;
+  payoutRub: number;
+  platform: SocialNetwork;
+  requirements: string;
+  postContent: string;
+}
+
 export interface UserAccount {
   id: string;
   name: string;
+  firstName?: string;
+  lastName?: string;
   telegramUsername: string;
-  tariff: 'free' | 'premium';
-  tokens: number; // AI Rewrites/Generations balances
+  tariff: 'free' | 'pro' | 'vip';
+  tokens: number; // AI tokens (ИИ-токены)
+  iirky: number;  // ИИрки - the new internal currency!
+  telegramStars?: number; // Telegram Stars balance
+  avatarUrl?: string; // profile photo url
   balanceRub: number; // income from promos, ad orders etc
   earningsRub: number; // total earnings in system
+  premiumUntil?: string; // Date formatted for premium trial
 }

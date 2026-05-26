@@ -6,7 +6,7 @@ import {
 interface BottomNavbarProps {
   currentPath: string;
   onNavigate: (path: string) => void;
-  tariff: 'free' | 'premium';
+  tariff: 'free' | 'pro' | 'vip';
 }
 
 export default function BottomNavbar({ currentPath, onNavigate, tariff }: BottomNavbarProps) {
@@ -31,11 +31,11 @@ export default function BottomNavbar({ currentPath, onNavigate, tariff }: Bottom
               onClick={() => onNavigate(item.path)}
               className={`flex flex-col items-center justify-center flex-1 h-full min-h-[48px] text-center transition-all cursor-pointer ${
                 isActive 
-                  ? 'text-indigo-700 font-extrabold' 
+                  ? 'text-orange-600 font-extrabold' 
                   : 'text-slate-600 hover:text-slate-900'
               }`}
             >
-              <div className={`p-1.5 rounded-lg transition-all ${isActive ? 'bg-white/60 text-indigo-600 ring-1 ring-white/50 shadow-xs' : 'text-slate-400'}`}>
+              <div className={`p-1.5 rounded-lg transition-all ${isActive ? 'bg-white/60 text-orange-55 shadow-xs' : 'text-slate-400'}`}>
                 {item.icon}
               </div>
               <span className="text-[9px] mt-0.5 tracking-tight font-sans truncate max-w-[55px] uppercase font-bold">

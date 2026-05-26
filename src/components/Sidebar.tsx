@@ -1,4 +1,5 @@
 import React from 'react';
+import ShinyLogo from './ShinyLogo';
 import { 
   Play, Radio, FileText, ShoppingBag, Users, BarChart3, Sparkles, ShieldCheck, Heart, LogOut
 } from 'lucide-react';
@@ -6,8 +7,9 @@ import {
 interface SidebarProps {
   currentPath: string;
   onNavigate: (path: string) => void;
-  tariff: 'free' | 'premium';
+  tariff: 'free' | 'pro' | 'vip';
   tokens: number;
+  iirky: number;
   balanceRub: number;
   userName: string;
   telegramUsername?: string;
@@ -18,6 +20,7 @@ export default function Sidebar({
   onNavigate, 
   tariff, 
   tokens, 
+  iirky,
   balanceRub,
   userName,
   telegramUsername
@@ -41,16 +44,8 @@ export default function Sidebar({
       
       <div className="space-y-6">
         {/* Geometric Balance brand header */}
-        <div className="flex items-center gap-2.5 px-1 pt-1">
-          <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-black text-lg">
-            И
-          </div>
-          <div>
-            <h1 className="text-xl font-black tracking-tight text-slate-900 underline underline-offset-4 decoration-indigo-500 leading-none">
-              ИИSMM
-            </h1>
-            <span className="text-[9px] text-slate-500 font-extrabold uppercase tracking-widest block mt-1">SMM Комбайн</span>
-          </div>
+        <div className="flex items-center justify-center px-1 pt-1 cursor-pointer" onClick={() => onNavigate('/start')}>
+          <ShinyLogo height={38} />
         </div>
 
         {/* Navigation list in Geometric style */}
@@ -64,11 +59,11 @@ export default function Sidebar({
                 onClick={() => onNavigate(item.path)}
                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-semibold transition-all text-left cursor-pointer ${
                   isActive 
-                    ? 'bg-white/60 text-indigo-700 font-bold shadow-sm ring-1 ring-white/50' 
+                    ? 'bg-white/60 text-orange-600 font-bold shadow-sm ring-1 ring-white/50' 
                     : 'text-slate-600 hover:bg-white/40 hover:text-slate-900 transition-colors'
                 }`}
               >
-                <span className={isActive ? 'text-indigo-600' : 'text-slate-400'}>
+                <span className={isActive ? 'text-orange-500' : 'text-slate-400'}>
                   {item.icon}
                 </span>
                 <span>{item.label}</span>
@@ -78,48 +73,60 @@ export default function Sidebar({
         </nav>
       </div>
 
-      {/* User balances, statuses, and footer in glassmorphic/indigo styling */}
+      {/* User balances, statuses, and footer in glassmorphic/orange styling */}
       <div className="space-y-3">
         
         {/* Dynamic balance widget */}
         <div className="bg-white/50 backdrop-blur-sm border border-white/40 rounded-2xl p-4 space-y-3 shadow-xs">
-          <div className="flex justify-between items-center text-[10px] text-indigo-700 font-bold uppercase tracking-wider border-b pb-1.5 border-indigo-100/50 font-sans">
+          <div className="flex justify-between items-center text-[10px] text-orange-600 font-bold uppercase tracking-wider border-b pb-1.5 border-orange-100/50 font-sans">
             <span>Кабинет</span>
             <span className="text-slate-500">{userName.split(' ')[0]}</span>
           </div>
-          <div className="grid grid-cols-2 gap-2 text-xs">
-            <div>
-              <span className="text-[10px] text-slate-500 block font-medium">Баланс РК</span>
-              <span className="font-extrabold text-slate-800 font-mono text-[13px]">{balanceRub} ₽</span>
+          <div className="space-y-2 text-xs">
+            <div className="flex justify-between items-center">
+              <span className="text-[10px] text-slate-500 font-medium">Баланс РК:</span>
+              <span className="font-extrabold text-slate-800 font-mono text-xs">{balanceRub} ₽</span>
             </div>
-            <div>
-              <span className="text-[10px] text-slate-500 block font-medium">Токены ИИ</span>
-              <span className="font-extrabold text-slate-800 font-mono text-[13px]">{tokens} ед.</span>
+            <div className="relative group flex justify-between items-center cursor-help border-b border-dashed border-orange-200/50 pb-1">
+              <span className="text-[10px] text-orange-600 font-bold flex items-center gap-0.5">
+                Баланс ИИрок: <span className="text-[9px] text-orange-400 font-normal hover:text-orange-600 transition-colors">(?)</span>
+              </span>
+              <span className="font-bold text-orange-600 font-mono text-[11px]">🪙 {iirky.toLocaleString()}</span>
+              
+              {/* Tooltip on hover explaining ИИрки */}
+              <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2.5 w-52 p-3 bg-slate-900/95 backdrop-blur border border-slate-700 text-white text-[10px] rounded-xl opacity-0 scale-90 pointer-events-none group-hover:opacity-100 group-hover:scale-100 transition-all duration-200 shadow-xl z-50 text-left font-normal leading-normal">
+                <span className="font-extrabold text-orange-400 block mb-1">🪙 Что такое ИИрки?</span>
+                Это токены, которые докупаются отдельно для работы с ИИ. Они используются для автоматического генеративного написания и глубокого рерайта постов.
+              </div>
             </div>
           </div>
 
           <div className="pt-1">
-            {tariff === 'premium' ? (
-              <div className="flex items-center gap-1 text-[10px] text-emerald-600 font-black uppercase">
-                <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" /> Premium Активен
+            {tariff === 'vip' ? (
+              <div className="flex items-center gap-1 text-[10px] text-amber-600 font-black uppercase">
+                <ShieldCheck className="w-3.5 h-3.5 text-amber-500" /> VIP Активен ⭐
+              </div>
+            ) : tariff === 'pro' ? (
+              <div className="flex items-center gap-1 text-[10px] text-orange-600 font-black uppercase">
+                <ShieldCheck className="w-3.5 h-3.5 text-orange-500" /> PRO Активен ⚡
               </div>
             ) : (
-              <div className="text-[10px] text-indigo-600 font-black uppercase tracking-wider">
-                Тариф: Free (Лимиты 3)
+              <div className="text-[10px] text-orange-600 font-black uppercase tracking-wider">
+                Тариф: Free (Лимит 3)
               </div>
             )}
           </div>
         </div>
 
-        {tariff !== 'premium' && (
-          <div className="p-3.5 bg-indigo-600/10 rounded-2xl border border-indigo-200/50">
-            <p className="text-[10px] font-extrabold text-indigo-700 uppercase tracking-widest mb-1.5">Premium Тариф</p>
+        {tariff === 'free' && (
+          <div className="p-3.5 bg-orange-600/10 rounded-2xl border border-orange-200/50">
+            <p className="text-[10px] font-extrabold text-orange-700 uppercase tracking-widest mb-1.5">Планы PRO / VIP</p>
             <p className="text-[11px] text-slate-600 leading-tight mb-2.5">Разблокируйте ИИ Рерайт и безлимитный постинг без лимитов</p>
             <button 
               onClick={() => onNavigate('/start')}
-              className="w-full py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold shadow-md transition-all cursor-pointer text-center"
+              className="w-full py-1.5 bg-orange-500 hover:bg-orange-600 text-white rounded-lg text-xs font-bold shadow-md transition-all cursor-pointer text-center"
             >
-              Купить статус
+              Выбрать тариф
             </button>
           </div>
         )}

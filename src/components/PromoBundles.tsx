@@ -139,9 +139,9 @@ export default function PromoBundles({
         
         /* 100% FREE WEEKLY DIRECTORY MODULE */
         <div className="space-y-4">
-          <div className="p-6 rounded-2xl bg-gradient-to-r from-teal-500/10 via-emerald-500/10 to-indigo-500/10 border border-emerald-100 space-y-3.5">
+          <div className="p-6 rounded-2xl bg-gradient-to-r from-orange-450/10 via-amber-450/10 to-pink-450/10 border border-orange-100 space-y-3.5">
             <div className="flex items-center gap-2">
-              <span className="p-1.5 bg-emerald-100 rounded-lg text-emerald-600 block">✨</span>
+              <span className="p-1.5 bg-orange-100 rounded-lg text-orange-600 block">✨</span>
               <h3 className="font-extrabold text-slate-800 text-base">Еженедельная бесплатная подборка каналов ИИSMM</h3>
             </div>
             <p className="text-sm text-slate-600 leading-normal max-w-3xl">
@@ -155,15 +155,15 @@ export default function PromoBundles({
 
             <div className="pt-2">
               {directoryJoined ? (
-                <div className="inline-flex items-center gap-1.5 px-4.5 py-2.5 rounded-xl bg-emerald-100 text-emerald-800 text-xs font-bold border border-emerald-200">
-                  <Check className="w-4 h-4" /> Вы подали заявку! Канал появится в следующей еженедельной подборке беспрепятственно.
+                <div className="inline-flex items-center gap-1.5 px-4.5 py-2.5 rounded-xl bg-orange-100 text-orange-850 text-xs font-bold border border-orange-200">
+                  <Check className="w-4 h-4 text-orange-600" /> Вы подали заявку! Канал появится в следующей еженедельной подборке беспрепятственно.
                 </div>
               ) : (
                 <button
                   id="btn-join-weekly-direct"
                   type="button"
                   onClick={() => setDirectoryJoined(true)}
-                  className="px-5 py-2.5 text-xs font-bold text-white bg-gradient-to-r from-emerald-500 to-teal-600 hover:opacity-95 rounded-xl shadow-md cursor-pointer transition-all active:scale-95"
+                  className="px-5 py-2.5 text-xs font-bold text-white bg-gradient-to-r from-orange-400 to-pink-500 hover:opacity-95 rounded-xl shadow-md cursor-pointer transition-all active:scale-95"
                 >
                   Подать заявку бесплатно (Всегда 0 ₽)
                 </button>
@@ -187,14 +187,14 @@ export default function PromoBundles({
                     <span className="font-bold text-slate-800 block">AI для бизнеса 🤖</span>
                     <span className="text-[10px] text-slate-400 font-mono">https://t.me/AI_and_Business</span>
                   </div>
-                  <span className="text-[10px] bg-sky-50 text-sky-600 px-1.5 py-0.5 rounded font-bold">11,200 подписчиков</span>
+                  <span className="text-[10px] bg-orange-50 text-orange-600 px-1.5 py-0.5 rounded font-bold">11,200 подписчиков</span>
                 </div>
                 <div className="bg-white p-3 rounded-lg border border-slate-100 text-xs flex justify-between items-center">
                   <div>
                     <span className="font-bold text-slate-800 block">Botmother 👾</span>
                     <span className="text-[10px] text-slate-400 font-mono">https://t.me/botmothercom</span>
                   </div>
-                  <span className="text-[10px] bg-sky-50 text-sky-600 px-1.5 py-0.5 rounded font-bold">4,800 подписчиков</span>
+                  <span className="text-[10px] bg-orange-50 text-orange-600 px-1.5 py-0.5 rounded font-bold">4,800 подписчиков</span>
                 </div>
               </div>
             </div>
@@ -219,7 +219,7 @@ export default function PromoBundles({
               <div className="grid grid-cols-2 gap-2 text-[11px] text-slate-700">
                 <div className="p-3 bg-slate-50 rounded-lg">
                   <span className="block text-slate-400">Для Организатора</span>
-                  <span className="font-bold text-emerald-600">Всегда БЕСПЛАТНО</span>
+                  <span className="font-bold text-pink-600">Всегда БЕСПЛАТНО</span>
                 </div>
                 <div className="p-3 bg-slate-50 rounded-lg">
                   <span className="block text-slate-400">Наша комиссия</span>
@@ -254,7 +254,7 @@ export default function PromoBundles({
               <button
                 id="btn-show-create-bundle"
                 onClick={() => setShowCreateForm(true)}
-                className="px-5 py-2.5 text-xs font-semibold text-white bg-slate-900 hover:bg-slate-800 rounded-xl shadow transition-transform active:scale-95 flex items-center gap-1.5 cursor-pointer"
+                className="px-5 py-2.5 text-xs font-extrabold text-white bg-gradient-to-r from-orange-400 via-pink-500 to-sky-450 hover:opacity-95 rounded-xl shadow-md transition-transform active:scale-95 flex items-center gap-1.5 cursor-pointer border border-white/20"
               >
                 <PlusCircle className="w-4 h-4" />
                 <span>Организовать новый платный сбор</span>
@@ -353,7 +353,7 @@ export default function PromoBundles({
                     </div>
                     <div className="bg-white p-2 border border-slate-100 rounded-lg">
                       <span className="block text-slate-400">Ваш чистый сбор (85%)</span>
-                      <span className="font-bold text-indigo-600 font-mono">{organizerEarningsRub} ₽</span>
+                      <span className="font-bold text-pink-600 font-mono">{organizerEarningsRub} ₽</span>
                     </div>
                   </div>
                 </div>
@@ -362,7 +362,7 @@ export default function PromoBundles({
                   <button
                     id="btn-submit-create-bundle"
                     type="submit"
-                    className="px-5 py-2.5 bg-slate-900 text-white hover:bg-slate-800 rounded-xl text-xs font-bold cursor-pointer"
+                    className="px-5 py-2.5 bg-gradient-to-r from-orange-400 via-pink-500 to-sky-450 hover:opacity-95 text-white rounded-xl text-xs font-extrabold cursor-pointer border border-white/20 shadow-sm"
                   >
                     Запустить бесплатный сбор как Организатор
                   </button>
@@ -400,15 +400,15 @@ export default function PromoBundles({
                   <div className="pt-2 border-t border-slate-100 flex items-center justify-between">
                     <div>
                       {bundle.isFreeForOrganizer && (
-                        <span className="text-[10px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-bold">
+                        <span className="text-[10px] bg-orange-100 text-orange-800 px-2 py-0.5 rounded font-bold">
                           Оргам бесплатно!
                         </span>
                       )}
                     </div>
 
                     {userHasJoined ? (
-                      <span className="px-3.5 py-1.5 rounded-xl bg-purple-100 text-purple-700 font-bold text-xs flex items-center gap-1 shadow-sm">
-                        <Check className="w-4 h-4" /> Вы участник
+                      <span className="px-3.5 py-1.5 rounded-xl bg-orange-100 text-orange-700 font-bold text-xs flex items-center gap-1 shadow-sm">
+                        <Check className="w-4 h-4 text-orange-600" /> Вы участник
                       </span>
                     ) : (
                       <button
@@ -416,8 +416,8 @@ export default function PromoBundles({
                         onClick={() => startJoinBundle(bundle.id)}
                         className={`px-4 py-2 rounded-xl text-xs font-bold shadow-sm cursor-pointer transition-all active:scale-95 ${
                           bundle.entryFeeRub > 0 
-                            ? 'bg-slate-900 text-white hover:bg-slate-800' 
-                            : 'bg-indigo-600 text-white hover:bg-indigo-700'
+                            ? 'bg-gradient-to-r from-pink-500 to-sky-450 hover:opacity-95 text-white border border-white/10' 
+                            : 'bg-gradient-to-r from-orange-400 to-pink-500 text-white hover:opacity-95 shadow-xs'
                         }`}
                       >
                         {bundle.entryFeeRub > 0 ? `Вступить (${bundle.entryFeeRub} ₽)` : 'Вступить бесплатно'}
@@ -488,7 +488,7 @@ export default function PromoBundles({
                   <button 
                     id="btn-confirm-join-submit"
                     type="submit" 
-                    className="py-2 bg-slate-900 text-white rounded-lg text-xs font-bold"
+                    className="py-2 bg-gradient-to-r from-orange-400 via-pink-500 to-sky-450 hover:opacity-95 text-white rounded-lg text-xs font-extrabold cursor-pointer border border-white/10 shadow-sm"
                   >
                     Подтвердить и Оплатить
                   </button>

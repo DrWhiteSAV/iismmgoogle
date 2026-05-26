@@ -15,8 +15,9 @@ interface SimulatedUser {
   name: string;
   telegramUsername: string;
   telegramId: string;
-  tariff: 'free' | 'premium';
+  tariff: 'free' | 'pro' | 'vip';
   tokens: number;
+  iirky?: number;
   balanceRub: number;
   earningsRub: number;
   channelsCount: number;
@@ -37,6 +38,7 @@ export default function SuperadminPanel({
       telegramId: '169262990',
       tariff: currentUser.tariff,
       tokens: currentUser.tokens,
+      iirky: currentUser.iirky || 1000000,
       balanceRub: currentUser.balanceRub,
       earningsRub: currentUser.earningsRub,
       channelsCount: allChannelsCount,
@@ -47,8 +49,9 @@ export default function SuperadminPanel({
       name: 'SAV AI Developer',
       telegramUsername: '@SAV_AI',
       telegramId: '412451551',
-      tariff: 'premium',
-      tokens: 340,
+      tariff: 'vip',
+      tokens: 4500000,
+      iirky: 850000,
       balanceRub: 1500,
       earningsRub: 23000,
       channelsCount: 4,
@@ -61,6 +64,7 @@ export default function SuperadminPanel({
       telegramId: '887291122',
       tariff: 'free',
       tokens: 50,
+      iirky: 1500,
       balanceRub: 0,
       earningsRub: 0,
       channelsCount: 1,
@@ -71,8 +75,9 @@ export default function SuperadminPanel({
       name: 'Алексей Тест-блог',
       telegramUsername: '@test_blogger',
       telegramId: '981125211',
-      tariff: 'premium',
-      tokens: 1000,
+      tariff: 'pro',
+      tokens: 1200000,
+      iirky: 45000,
       balanceRub: 2400,
       earningsRub: 4500,
       channelsCount: 5,
@@ -84,7 +89,8 @@ export default function SuperadminPanel({
       telegramUsername: '@masha_smm',
       telegramId: '552124511',
       tariff: 'free',
-      tokens: 12,
+      tokens: 120,
+      iirky: 300,
       balanceRub: 80,
       earningsRub: 600,
       channelsCount: 2,
@@ -108,7 +114,7 @@ export default function SuperadminPanel({
   const [newUserName, setNewUserName] = useState('');
   const [newUserTg, setNewUserTg] = useState('');
   const [newUserTgId, setNewUserTgId] = useState('');
-  const [newUserTariff, setNewUserTariff] = useState<'free' | 'premium'>('free');
+  const [newUserTariff, setNewUserTariff] = useState<'free' | 'pro' | 'vip'>('free');
   const [newUserTokens, setNewUserTokens] = useState(100);
   const [newUserBalance, setNewUserBalance] = useState(500);
 
@@ -187,11 +193,11 @@ export default function SuperadminPanel({
     }));
   };
 
-  // Action: Force change Tariff (Premium <-> Free)
+  // Action: Force change Tariff (Cycles free -> pro -> vip -> free)
   const handleToggleTariff = (userId: string) => {
     setUsers(users.map(u => {
       if (u.id === userId) {
-        const newTariff = u.tariff === 'free' ? 'premium' : 'free';
+        const newTariff: 'free' | 'pro' | 'vip' = u.tariff === 'free' ? 'pro' : u.tariff === 'pro' ? 'vip' : 'free';
         
         if (userId === currentUser.id) {
           onUpdateCurrentUser({
@@ -227,53 +233,53 @@ export default function SuperadminPanel({
     <div id="superadmin-panel" className="space-y-6">
       
       {/* Superadmin Header Section */}
-      <div className="p-5 rounded-2xl bg-neutral-900 border border-slate-800 text-white space-y-4 shadow-xl">
+      <div className="p-6 rounded-3xl bg-gradient-to-r from-amber-50 to-pink-50 border border-white/90 text-slate-800 space-y-4 shadow-xs">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white">
+            <div className="w-10 h-10 bg-slate-900 rounded-xl flex items-center justify-center text-white">
               <Shield className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-lg font-black tracking-tight flex items-center gap-2">
-                Панель Суперкомандования <span className="text-[10px] bg-indigo-500/20 text-indigo-400 px-2 py-0.5 rounded border border-indigo-500/30">ID: 169262990</span>
+              <h2 className="text-lg font-black tracking-tight flex items-center gap-2 text-slate-900 uppercase">
+                Панель Суперкомандования <span className="text-[10px] bg-slate-100 text-slate-700 px-2 py-0.5 rounded border border-slate-200">ID: 169262990</span>
               </h2>
-              <p className="text-xs text-slate-400">Управляйте профилями пользователей, проверяйте работу бота и балансы ИИSMM</p>
+              <p className="text-xs text-slate-500 font-semibold">Управляйте профилями пользователей, проверяйте работу бота и балансы ИИSMM</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-            <span className="text-xs font-mono text-emerald-400 uppercase font-black tracking-wider">Суперадмин: {currentUser.telegramUsername}</span>
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+            <span className="text-xs font-mono text-emerald-600 uppercase font-bold tracking-wider">Суперадмин: {currentUser.telegramUsername}</span>
           </div>
         </div>
 
         {/* Global Statistics Grid */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-2">
-          <div className="p-3 bg-white/5 rounded-xl border border-white/5 space-y-1">
+          <div className="p-3.5 bg-white rounded-2xl border border-slate-100/85 space-y-1 shadow-2xs">
             <span className="text-[9px] text-slate-400 block uppercase font-bold tracking-wider">Всего профилей</span>
             <div className="flex justify-between items-baseline">
-              <span className="text-xl font-black text-white">{users.length}</span>
-              <span className="text-[10px] text-emerald-400 font-bold">100% норм</span>
+              <span className="text-xl font-black text-slate-900">{users.length}</span>
+              <span className="text-[10px] text-emerald-600 font-bold font-mono">100% норм</span>
             </div>
           </div>
-          <div className="p-3 bg-white/5 rounded-xl border border-white/5 space-y-1">
+          <div className="p-3.5 bg-white rounded-2xl border border-slate-100/85 space-y-1 shadow-2xs">
             <span className="text-[9px] text-slate-400 block uppercase font-bold tracking-wider">Всего токенов</span>
             <div className="flex justify-between items-baseline">
-              <span className="text-xl font-black text-indigo-400">{totalSystemTokens} ед</span>
-              <span className="text-[10px] text-slate-400">в обороте</span>
+              <span className="text-xl font-black text-indigo-700 font-mono">{totalSystemTokens} ед</span>
+              <span className="text-[10px] text-slate-500 font-medium">в обороте</span>
             </div>
           </div>
-          <div className="p-3 bg-white/5 rounded-xl border border-white/5 space-y-1">
+          <div className="p-3.5 bg-white rounded-2xl border border-slate-100/85 space-y-1 shadow-2xs">
             <span className="text-[9px] text-slate-400 block uppercase font-bold tracking-wider">Система Балансов</span>
             <div className="flex justify-between items-baseline">
-              <span className="text-xl font-black text-emerald-400">{totalSystemBalance} ₽</span>
-              <span className="text-[10px] text-emerald-500 font-bold">+15% ком.</span>
+              <span className="text-xl font-black text-emerald-600 font-mono">{totalSystemBalance} ₽</span>
+              <span className="text-[10px] text-emerald-600 font-bold font-mono">+15% ком.</span>
             </div>
           </div>
-          <div className="p-3 bg-white/5 rounded-xl border border-white/5 space-y-1">
+          <div className="p-3.5 bg-white rounded-2xl border border-slate-100/85 space-y-1 shadow-2xs">
             <span className="text-[9px] text-slate-400 block uppercase font-bold tracking-wider">Запросы к Gemini API</span>
             <div className="flex justify-between items-baseline">
-              <span className="text-xl font-black text-amber-500">{stats.apiRequests}</span>
-              <span className="text-[10px] text-zinc-400 font-mono">3.5 Flash</span>
+              <span className="text-xl font-black text-amber-600 font-mono">{stats.apiRequests}</span>
+              <span className="text-[10px] text-zinc-500 font-mono font-medium">3.5 Flash</span>
             </div>
           </div>
         </div>
@@ -336,14 +342,14 @@ export default function SuperadminPanel({
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
             <h3 className="font-extrabold text-slate-800 text-sm uppercase tracking-wider flex items-center gap-1.5">
-              <Users className="w-4 h-4 text-emerald-600" /> Профили пользователей SMM Комбайна
+              <Users className="w-4 h-4 text-sky-600" /> Профили пользователей SMM Комбайна
             </h3>
             <p className="text-xs text-slate-500">Изменяйте балансы в реальном времени, подключайте статус Premium, блокируйте временно</p>
           </div>
           
           <button
             onClick={() => setShowAddUser(!showAddUser)}
-            className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold shadow-md flex items-center gap-1 cursor-pointer"
+            className="px-4 py-2 bg-gradient-to-r from-orange-400 via-pink-450 to-sky-450 text-white rounded-xl text-xs font-black uppercase tracking-wider shadow-md hover:opacity-95 transition-all flex items-center gap-1 cursor-pointer border border-white/20 active:scale-98"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>{showAddUser ? 'Скрыть Форму' : 'Зарегистрировать нового'}</span>
@@ -394,11 +400,12 @@ export default function SuperadminPanel({
                 <label className="text-slate-500 text-[10px] uppercase block">Тариф системы</label>
                 <select 
                   value={newUserTariff}
-                  onChange={e => setNewUserTariff(e.target.value as 'free' | 'premium')}
+                  onChange={e => setNewUserTariff(e.target.value as 'free' | 'pro' | 'vip')}
                   className="w-full bg-white border border-slate-200 p-2.5 rounded-xl text-xs focus:ring-1 focus:ring-indigo-500"
                 >
-                  <option value="free">Free Плавающий</option>
-                  <option value="premium">Premium Безлимит</option>
+                  <option value="free font-sans">FREE (3 канала)</option>
+                  <option value="pro font-sans">PRO (Безлимит)</option>
+                  <option value="vip font-sans">VIP (Супервизор)</option>
                 </select>
               </div>
               <div className="space-y-1">
@@ -477,19 +484,26 @@ export default function SuperadminPanel({
                       </div>
                     </td>
                     <td className="p-4">
-                      {item.tariff === 'premium' ? (
+                      {item.tariff === 'vip' ? (
                         <button 
                           onClick={() => handleToggleTariff(item.id)}
-                          className="px-2.5 py-1 bg-emerald-100 text-emerald-800 text-[9px] font-black rounded-full flex items-center gap-0.5 border border-emerald-200 hover:bg-emerald-200 transition-all cursor-pointer"
+                          className="px-2.5 py-1 bg-amber-100 text-amber-800 text-[9px] font-black rounded-full flex items-center gap-0.5 border border-amber-200 hover:bg-amber-200 transition-all cursor-pointer uppercase font-sans"
                         >
-                          <CheckCircle className="w-3 h-3 text-emerald-500" /> PREMIUM
+                          ⭐ VIP
+                        </button>
+                      ) : item.tariff === 'pro' ? (
+                        <button 
+                          onClick={() => handleToggleTariff(item.id)}
+                          className="px-2.5 py-1 bg-indigo-100 text-indigo-800 text-[9px] font-black rounded-full flex items-center gap-0.5 border border-indigo-200 hover:bg-indigo-200 transition-all cursor-pointer uppercase font-sans"
+                        >
+                          ⚡ PRO
                         </button>
                       ) : (
                         <button 
                           onClick={() => handleToggleTariff(item.id)}
-                          className="px-2.5 py-1 bg-slate-100 text-slate-500 text-[9px] font-black rounded-full hover:bg-orange-100 hover:text-orange-700 border transition-all cursor-pointer"
+                          className="px-2.5 py-1 bg-slate-100 text-slate-500 text-[9px] font-black rounded-full hover:bg-indigo-100 hover:text-indigo-700 border transition-all cursor-pointer uppercase font-sans"
                         >
-                          БЕСПЛАТНЫЙ
+                          FREE
                         </button>
                       )}
                     </td>
@@ -502,7 +516,10 @@ export default function SuperadminPanel({
                           className="w-16 bg-slate-50 border px-1 py-1 rounded text-center text-xs text-slate-800"
                         />
                       ) : (
-                        <span className="font-mono font-bold text-slate-800">{item.tokens}</span>
+                        <div className="flex flex-col text-left">
+                          <span className="font-mono font-bold text-slate-850">⚡ {(item.tokens || 0).toLocaleString()}</span>
+                          <span className="font-mono text-[9px] text-indigo-700">🪙 {(item.iirky || 0).toLocaleString()}</span>
+                        </div>
                       )}
                     </td>
                     <td className="p-4">

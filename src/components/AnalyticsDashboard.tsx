@@ -24,6 +24,33 @@ export default function AnalyticsDashboard({
   // Interactive UTM Campaign stats
   const [activeMetricFilter, setActiveMetricFilter] = useState<'views' | 'clicks' | 'growth'>('views');
 
+  // Withdrawal States for the specified 25% commission rule from exchange
+  const [withdrawAmount, setWithdrawAmount] = useState('5000');
+  const [withdrawMethod, setWithdrawMethod] = useState<'card' | 'qiwi' | 'stars'>('card');
+  const [withdrawAccount, setWithdrawAccount] = useState('');
+  const [withdrawStatus, setWithdrawStatus] = useState<'idle' | 'checking' | 'success'>('idle');
+
+  const parsedWithdraw = Number(withdrawAmount) || 0;
+  const commissionFee = Math.round(parsedWithdraw * 0.25);
+  const payoutAmount = Math.max(0, parsedWithdraw - commissionFee);
+
+  const handleWithdrawFunds = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (parsedWithdraw < 100) {
+      alert('Минимальная сумма для вывода — 100 ₽');
+      return;
+    }
+    if (!withdrawAccount.trim()) {
+      alert('Пожалуйста, введите реквизиты для вывода средств!');
+      return;
+    }
+    setWithdrawStatus('checking');
+    setTimeout(() => {
+      setWithdrawStatus('success');
+      alert(`Заявка оформлена! ${payoutAmount} ₽ будут отправлены на ваши реквизиты в течение 24 часов. Комиссия биржи соавторов (25%): ${commissionFee} ₽ вычтена.`);
+    }, 1200);
+  };
+
   // Simulated UTM Source campaign breakdowns
   const UTM_SOURCES = [
     { source: 'tg_folder_promo', clicks: Math.round(totalClicks * 0.45), category: 'Mutual Folder', cr: '12.4%' },
@@ -78,17 +105,17 @@ export default function AnalyticsDashboard({
           onClick={() => setActiveMetricFilter('views')}
           className={`p-5 rounded-2xl border transition-all cursor-pointer ${
             activeMetricFilter === 'views' 
-              ? 'bg-sky-500/10 border-sky-300 ring-2 ring-sky-200' 
+              ? 'bg-orange-500/10 border-orange-300 ring-2 ring-orange-200' 
               : 'bg-white/80 border-slate-200 hover:bg-white'
           }`}
         >
           <div className="flex justify-between items-start text-slate-400">
             <span className="text-xs font-bold uppercase tracking-wider block">Охват / Просмотры</span>
-            <Eye className="w-4 h-4 text-sky-500" />
+            <Eye className="w-4 h-4 text-orange-500" />
           </div>
           <div className="mt-4">
             <h3 className="text-2xl font-black text-slate-800 tracking-tight">{totalViews.toLocaleString()}</h3>
-            <span className="text-[10px] text-emerald-600 font-bold flex items-center gap-0.5 mt-1.5">
+            <span className="text-[10px] text-pink-600 font-bold flex items-center gap-0.5 mt-1.5">
               <TrendingUp className="w-3 h-3" /> +14.2% Свежий прирост
             </span>
           </div>
@@ -99,17 +126,17 @@ export default function AnalyticsDashboard({
           onClick={() => setActiveMetricFilter('clicks')}
           className={`p-5 rounded-2xl border transition-all cursor-pointer ${
             activeMetricFilter === 'clicks' 
-              ? 'bg-purple-500/10 border-purple-300 ring-2 ring-purple-200' 
+              ? 'bg-pink-500/10 border-pink-300 ring-2 ring-pink-200' 
               : 'bg-white/80 border-slate-200 hover:bg-white'
           }`}
         >
           <div className="flex justify-between items-start text-slate-400">
             <span className="text-xs font-bold uppercase tracking-wider block">Клики по UTM</span>
-            <MousePointer className="w-4 h-4 text-purple-500" />
+            <MousePointer className="w-4 h-4 text-pink-500" />
           </div>
           <div className="mt-4">
             <h3 className="text-2xl font-black text-slate-800 tracking-tight">{totalClicks.toLocaleString()}</h3>
-            <span className="text-[10px] text-emerald-600 font-bold flex items-center gap-0.5 mt-1.5">
+            <span className="text-[10px] text-pink-600 font-bold flex items-center gap-0.5 mt-1.5">
               <TrendingUp className="w-3 h-3" /> +28.4% Свежий прирост
             </span>
           </div>
@@ -165,7 +192,7 @@ export default function AnalyticsDashboard({
             {/* Glowing Gradient fill for curve underlay */}
             <defs>
               <linearGradient id="chart-glow" x1="0%" y1="0%" x2="0%" y2="100%">
-                <stop offset="0%" stopColor={activeMetricFilter === 'views' ? '#38bdf8' : activeMetricFilter === 'clicks' ? '#c084fc' : '#34d399'} stopOpacity="0.3"/>
+                <stop offset="0%" stopColor={activeMetricFilter === 'views' ? '#f97316' : activeMetricFilter === 'clicks' ? '#ec4899' : '#f43f5e'} stopOpacity="0.3"/>
                 <stop offset="100%" stopColor="#ffffff" stopOpacity="0"/>
               </linearGradient>
             </defs>
@@ -184,7 +211,7 @@ export default function AnalyticsDashboard({
             <path 
               d={activeTrend.map((p, idx) => `${idx === 0 ? 'M' : 'L'} ${idx * (95 / (activeTrend.length - 1)) + 2.5}% ${130 - (p.val - minVal) * heightMultiplier}`).join(' ')}
               fill="none" 
-              stroke={activeMetricFilter === 'views' ? '#0ea5e9' : activeMetricFilter === 'clicks' ? '#a855f7' : '#10b981'} 
+              stroke={activeMetricFilter === 'views' ? '#f97316' : activeMetricFilter === 'clicks' ? '#ec4899' : '#f43f5e'} 
               strokeWidth="3.5"
               strokeLinecap="round"
               style={{ transition: 'all 0.5s ease' }}
@@ -201,7 +228,7 @@ export default function AnalyticsDashboard({
                     cy={yPos} 
                     r="5.5" 
                     fill="#ffffff" 
-                    stroke={activeMetricFilter === 'views' ? '#0ea5e9' : activeMetricFilter === 'clicks' ? '#a855f7' : '#10b981'} 
+                    stroke={activeMetricFilter === 'views' ? '#f97316' : activeMetricFilter === 'clicks' ? '#ec4899' : '#f43f5e'} 
                     strokeWidth="3"
                     style={{ transition: 'all 0.5s ease' }}
                   />
@@ -229,6 +256,88 @@ export default function AnalyticsDashboard({
 
       </div>
 
+      {/* 25% Exchange commission Withdrawal panel */}
+      <div className="p-5 rounded-2xl bg-white/70 backdrop-blur-md border border-white/40 shadow-sm space-y-4">
+        <div>
+          <h4 className="font-extrabold text-slate-800 text-sm">Вывод заработанных средств с биржи</h4>
+          <p className="text-xs text-slate-500 mt-0.5">Переводите заработанные средства соавторов или партнеров на свои личные кошельки.</p>
+        </div>
+
+        <form onSubmit={handleWithdrawFunds} className="grid grid-cols-1 md:grid-cols-12 gap-4">
+          
+          <div className="md:col-span-4 space-y-1.5 text-xs">
+            <label className="text-[10px] text-slate-400 font-bold uppercase block">Сумма к выводу (₽):</label>
+            <input 
+              type="number" 
+              required
+              min={100}
+              placeholder="5000"
+              value={withdrawAmount}
+              onChange={e => setWithdrawAmount(e.target.value)}
+              className="w-full bg-white border border-slate-200 px-3 py-2 rounded-xl text-xs font-mono focus:outline-none focus:ring-1 focus:ring-orange-400"
+            />
+          </div>
+
+          <div className="md:col-span-4 space-y-1.5 text-xs">
+            <label className="text-[10px] text-slate-400 font-bold uppercase block">Платежная система:</label>
+            <select
+              value={withdrawMethod}
+              onChange={e => setWithdrawMethod(e.target.value as any)}
+              className="w-full bg-white border border-slate-200 px-3 py-2 rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-orange-400"
+            >
+              <option value="card">💳 Банковская карта РФ (Visa/MIR)</option>
+              <option value="qiwi">👛 QIWI Кошелек</option>
+              <option value="stars">✈️ Telegram Stars</option>
+            </select>
+          </div>
+
+          <div className="md:col-span-4 space-y-1.5 text-xs">
+            <label className="text-[10px] text-slate-400 font-bold uppercase block">Номер карты / реквизиты:</label>
+            <input 
+              type="text" 
+              required
+              placeholder="4276 •••• •••• ••••"
+              value={withdrawAccount}
+              onChange={e => setWithdrawAccount(e.target.value)}
+              className="w-full bg-white border border-slate-200 px-3 py-2 rounded-xl text-xs font-mono focus:outline-none focus:ring-1 focus:ring-orange-400"
+            />
+          </div>
+
+          {/* Commission calculations live display */}
+          <div className="md:col-span-12 p-3 bg-orange-50 text-orange-950 border border-orange-100 rounded-xl grid grid-cols-3 gap-2 text-center text-xs">
+            <div>
+              <span className="block text-[9px] text-orange-605 font-mono uppercase font-bold leading-none mb-1">Сумма запроса:</span>
+              <span className="font-mono font-black">{parsedWithdraw} ₽</span>
+            </div>
+            <div>
+              <span className="block text-[9px] text-rose-500 font-mono uppercase font-bold leading-none mb-1">Комиссия биржи (25%):</span>
+              <span className="font-mono font-bold text-rose-600">-{commissionFee} ₽</span>
+            </div>
+            <div>
+              <span className="block text-[9px] text-pink-605 font-mono uppercase font-bold leading-none mb-1">Вы получите чистыми:</span>
+              <span className="font-mono font-black text-pink-605 text-sm">{payoutAmount} ₽</span>
+            </div>
+          </div>
+
+          <div className="md:col-span-12 flex justify-end">
+            <button
+              type="submit"
+              disabled={withdrawStatus === 'checking'}
+              className="px-5 py-2.5 bg-gradient-to-r from-orange-400 via-pink-500 to-sky-450 hover:opacity-95 text-white font-extrabold text-xs rounded-xl shadow-md cursor-pointer transition-all flex items-center gap-1.5 uppercase font-sans tracking-wide border border-white/20 active:scale-98"
+            >
+              {withdrawStatus === 'checking' ? 'Оформление...' : 'Заказать вывод средств 🚀'}
+            </button>
+          </div>
+
+        </form>
+
+        {withdrawStatus === 'success' && (
+          <div className="p-3 bg-orange-50 text-orange-900 border border-orange-100 text-xs rounded-xl font-semibold">
+            🎉 Заявка на вывод {payoutAmount} ₽ успешно зарегистрирована и поставлена в системную очередь! Реквизиты: {withdrawAccount}.
+          </div>
+        )}
+      </div>
+
       {/* UTM Referrals Campaign Sources listing */}
       <div className="p-5 rounded-2xl bg-white/70 backdrop-blur-md border border-white/40 shadow-sm space-y-3.5">
         <div>
@@ -251,12 +360,12 @@ export default function AnalyticsDashboard({
 
               <div className="flex items-center gap-6 font-mono text-right text-slate-700">
                 <div>
-                  <span className="block text-slate-400 text-[9px] uppercase font-sans">Клики</span>
-                  <span className="font-bold text-slate-800">{itm.clicks}</span>
+                   <span className="block text-slate-400 text-[9px] uppercase font-sans">Клики</span>
+                   <span className="font-bold text-slate-800">{itm.clicks}</span>
                 </div>
                 <div>
-                  <span className="block text-slate-400 text-[9px] uppercase font-sans">Конверсия CR</span>
-                  <span className="font-bold text-emerald-600">{itm.cr}</span>
+                   <span className="block text-slate-400 text-[9px] uppercase font-sans">Конверсия CR</span>
+                   <span className="font-bold text-pink-600">{itm.cr}</span>
                 </div>
               </div>
             </div>

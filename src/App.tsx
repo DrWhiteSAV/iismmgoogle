@@ -1,61 +1,159 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  SocialChannel, CampaignPost, PromoBundle, AdListing, BulletinAd, UserAccount, SocialNetwork 
+  SocialChannel, CampaignPost, PromoBundle, AdListing, BulletinAd, UserAccount, SocialNetwork, AdOrder 
 } from './types';
 import Sidebar from './components/Sidebar';
 import BottomNavbar from './components/BottomNavbar';
-import ChannelList from './components/ChannelList';
-import PostMaker from './components/PostMaker';
-import PromoBundles from './components/PromoBundles';
-import AdMarketplace from './components/AdMarketplace';
-import AnalyticsDashboard from './components/AnalyticsDashboard';
-import ProfileAndOnboarding from './components/ProfileAndOnboarding';
-import SuperadminPanel from './components/SuperadminPanel';
+import StartPage from './pages/StartPage';
+import ChannelsPage from './pages/ChannelsPage';
+import PostsPage from './pages/PostsPage';
+import MarketPage from './pages/MarketPage';
+import BundlesPage from './pages/BundlesPage';
+import ProfilePage from './pages/ProfilePage';
+import AdminPage from './pages/AdminPage';
+import LandingPage from './pages/LandingPage';
+import LiquidGlassBackground from './components/LiquidGlassBackground';
 import { Sparkles, Play, ShieldCheck, Mail, MessageSquare, AlertTriangle, Lightbulb } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
+declare global {
+  interface Window {
+    Telegram?: {
+      WebApp?: {
+        initData?: string;
+        initDataUnsafe?: {
+          user?: {
+            id: number;
+            username?: string;
+            first_name: string;
+            last_name?: string;
+            photo_url?: string;
+          };
+        };
+        paymentStars?: number;
+        ready: () => void;
+        close: () => void;
+        expand: () => void;
+      };
+    };
+  }
+}
+
 export default function App() {
-  // 1. Navigation Routing State (Hash-Synced Router)
-  const [currentPath, setCurrentPath] = useState('/posts');
+  // 0. Telegram Session login state
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  // 1. Navigation Routing State (Browser Native Router)
+  const [currentPath, setCurrentPath] = useState(window.location.pathname);
 
   useEffect(() => {
-    const handleHashChange = () => {
-      const hash = window.location.hash;
-      if (hash) {
-        // Strip # and default to standard folders
-        const cleanPath = hash.replace('#', '');
-        const validPaths = ['/start', '/channels', '/posts', '/market', '/bundles', '/profile', '/admin'];
-        if (validPaths.includes(cleanPath)) {
-          setCurrentPath(cleanPath);
-        }
+    const handleLocationChange = () => {
+      const path = window.location.pathname;
+      const landingPaths = ['/main', '/blog', '/ai', '/market-exchange', '/analytics', '/advantages', '/posts-info', '/canvas', '/reposter', '/prices', '/projects', '/academy'];
+      const appPaths = ['/start', '/channels', '/posts', '/market', '/bundles', '/profile', '/admin'];
+      const validPaths = [...appPaths, ...landingPaths];
+
+      if (validPaths.includes(path)) {
+        setCurrentPath(path);
+      } else if (path === '/' || path === '') {
+        const defaultPath = isLoggedIn ? '/posts' : '/main';
+        window.history.replaceState(null, '', defaultPath);
+        setCurrentPath(defaultPath);
       } else {
-        // Default route is our main Posting/Content workspace
-        window.location.hash = '#/posts';
+        // Fallback for custom or unmatched paths
+        const defaultPath = isLoggedIn ? '/posts' : '/main';
+        window.history.replaceState(null, '', defaultPath);
+        setCurrentPath(defaultPath);
       }
     };
 
-    // Listen to hash alterations
-    window.addEventListener('hashchange', handleHashChange);
-    handleHashChange(); // Trigger on start
+    // Listen to popstate for browser back/forward buttons
+    window.addEventListener('popstate', handleLocationChange);
+    
+    // Initial sync
+    handleLocationChange();
 
-    return () => window.removeEventListener('hashchange', handleHashChange);
-  }, []);
+    return () => window.removeEventListener('popstate', handleLocationChange);
+  }, [isLoggedIn]);
 
   const changeRoute = (path: string) => {
-    window.location.hash = `#${path}`;
+    window.history.pushState(null, '', path);
     setCurrentPath(path);
   };
 
-  // 2. Core User Account State
+  // 2. Core User Account State (starts with 1,000,000 ИИрок and 7 days free premium/VIP)
   const [user, setUser] = useState<UserAccount>({
     id: 'usr-928',
     name: 'Иван Шишкарёв',
+    firstName: 'Иван',
+    lastName: 'Шишкарёв',
     telegramUsername: '@shishkarnem',
-    tariff: 'free',
-    tokens: 150, // Starts with enough tokens to test multiple AI queries
-    balanceRub: 350, // Starts with enough to test joining multiple promos
-    earningsRub: 14500 // Total historically earned in system
+    tariff: 'vip', // Initial VIP tariff representing free trials
+    tokens: 1000000, // Starts aligned as ИИрки = токены
+    iirky: 1000000, // Pre-credited 1,000,000 ИИрок upon start!
+    telegramStars: 250, // Stars balance
+    avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80',
+    balanceRub: 350, // Starts standard
+    earningsRub: 14500, // Total historically earned in system
+    premiumUntil: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toLocaleDateString('ru-RU') // 7 days free
   });
+
+  // TMA Automatic Registration Detector Hook of Telegram API
+  useEffect(() => {
+    if (window.Telegram?.WebApp) {
+      try {
+        const tg = window.Telegram.WebApp;
+        tg.ready();
+        tg.expand();
+        
+        const tgUser = tg.initDataUnsafe?.user;
+        if (tgUser) {
+          const namesStr = [tgUser.first_name, tgUser.last_name].filter(Boolean).join(' ') || 'Пользователь Telegram';
+          setUser({
+            id: String(tgUser.id),
+            name: namesStr,
+            firstName: tgUser.first_name,
+            lastName: tgUser.last_name || '',
+            telegramUsername: tgUser.username ? `@${tgUser.username}` : `@id${tgUser.id}`,
+            tariff: 'vip',
+            tokens: 1000000,
+            iirky: 1000000, // crediting 1,000,000 ИИрок automatically
+            telegramStars: tg.paymentStars || 380, // realistic star balances or paymentStars detected
+            avatarUrl: tgUser.photo_url || 'https://images.unsplash.com/photo-1511367461989-f85a21fda167?w=100&auto=format&fit=crop&q=80',
+            balanceRub: 1250, // initial bonus
+            earningsRub: 14500,
+            premiumUntil: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toLocaleDateString('ru-RU') // 7 days trial free
+          });
+          setIsLoggedIn(true); // Automatically log in inside TMA environment!
+          console.log("Telegram TMA user registered and signed up in one-click:", tgUser);
+        }
+      } catch (err) {
+        console.error("TMA detection error:", err);
+      }
+    }
+  }, []);
+
+  // Quick 1-click registration simulation for standard browsers
+  const handleTelegramOneClickRegister = (customData?: Partial<UserAccount>) => {
+    setUser({
+      id: customData?.id || 'tg-' + Math.floor(Math.random() * 900000000 + 100000000),
+      name: customData?.name || 'Михаил Регистратов',
+      firstName: customData?.firstName || 'Михаил',
+      lastName: customData?.lastName || 'Регистратов',
+      telegramUsername: customData?.telegramUsername || '@mikhail_quick',
+      tariff: 'vip',
+      tokens: 1000000,
+      iirky: 1000000, // crediting 1,000,000 ИИрок automatically
+      telegramStars: customData?.telegramStars || 450, // 450 Stars!
+      avatarUrl: customData?.avatarUrl || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&auto=format&fit=crop&q=80',
+      balanceRub: 1250,
+      earningsRub: 14500,
+      premiumUntil: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toLocaleDateString('ru-RU') // 7 days бесплатно
+    });
+    setIsLoggedIn(true); // Sign in user instantly
+    alert('⚡ БЫСТРАЯ РЕГИСТРАЦИЯ: Успешная ТМА-авторегистрация в 1-клик! Начислено 1,000,000 ИИрок и 7 дней подписки VIP бесплатно.');
+  };
 
   // 3. Pre-populated Social connected channels (2 channels, leaving exactly 1 spot to test the 3-channel cap)
   const [channels, setChannels] = useState<SocialChannel[]>([
@@ -167,6 +265,63 @@ export default function App() {
     }
   ]);
 
+  // Advertiser Orders for the user to respond to and earn money!
+  const [advertiserOrders, setAdvertiserOrders] = useState<AdOrder[]>([
+    {
+      id: 'ord-1',
+      title: 'Реклама ИИ-Академии Маркетинга',
+      payoutRub: 350,
+      platform: 'telegram',
+      requirements: 'Держать в топе 2 часа. Без удаления.',
+      postContent: '🚀 СТАНЬ ИИ-КОПИРАЙТЕРОМ ЗА 2 НЕДЕЛИ!\nЗапишись в нашу Академию и научись генерировать контент в 10 раз быстрее.'
+    },
+    {
+      id: 'ord-2',
+      title: 'Продвижение экосистемы @iiSmmBot',
+      payoutRub: 550,
+      platform: 'telegram',
+      requirements: 'Опубликовать на 24 часа.',
+      postContent: '🤖 Подключи @iiSmmBot прямо сейчас! Авточистка лохотронов, спама, рекламы ставок в комментариях вашего канала. Работает бесплатно.'
+    },
+    {
+      id: 'ord-3',
+      title: 'Реклама курсов UI/UX дизайна',
+      payoutRub: 400,
+      platform: 'vk',
+      requirements: 'Размещение в ленту.',
+      postContent: '🎨 Хочешь создавать интерфейсы в стиле Apple Liquid Glass? Приходи на наш бесплатный интенсив!'
+    }
+  ]);
+
+  const handleAddAdListing = (listing: Omit<AdListing, 'id'>) => {
+    const newListing: AdListing = {
+      ...listing,
+      id: `ad-lst-${Date.now()}`
+    };
+    setAdListings(prev => [newListing, ...prev]);
+  };
+
+  const handleEarnMoney = (amount: number, orderTitle: string, channelName: string) => {
+    setUser(prev => ({
+      ...prev,
+      balanceRub: prev.balanceRub + amount,
+      earningsRub: (prev.earningsRub || 0) + amount
+    }));
+    
+    // Create actual simulated published post
+    const newPost: CampaignPost = {
+      id: `post-ord-${Date.now()}`,
+      title: `Реклама: ${orderTitle}`,
+      content: `Интеграция выполнена на канале ${channelName}. Вы заработали ${amount} ₽.`,
+      platforms: ['telegram'],
+      status: 'published',
+      clicks: Math.floor(Math.random() * 45) + 10,
+      views: Math.floor(Math.random() * 500) + 150,
+      isAiGenerated: false
+    };
+    setPosts(prev => [newPost, ...prev]);
+  };
+
   // 7. Mutual promotion folders сборы в папки
   const [bundles, setBundles] = useState<PromoBundle[]>([
     {
@@ -208,7 +363,7 @@ export default function App() {
       ...newChan,
       id: `ch-${Date.now()}`,
       subscribers: Math.floor(Math.random() * 8000) + 1200,
-      isPremium: user.tariff === 'premium',
+      isPremium: user.tariff !== 'free',
       status: 'connected'
     };
 
@@ -254,7 +409,7 @@ export default function App() {
     setUser(prev => ({
       ...prev,
       balanceRub: Math.max(0, prev.balanceRub - cost),
-      tariff: slotsCount >= 3 ? 'premium' : prev.tariff // Unlock premium if they buy bulk slots
+      tariff: slotsCount >= 3 ? 'pro' : prev.tariff // Unlock pro if they buy bulk slots
     }));
   };
 
@@ -283,24 +438,50 @@ export default function App() {
     }));
   };
 
-  // Triggering Premium Account Tariff upgrade
-  const handleUpgradeTariff = () => {
-    if (user.balanceRub < 490) {
-      if (confirm(`Ваш текущий баланс (${user.balanceRub} ₽) маловат. Пополнить баланс на 490 ₽ для мгновенной подписки PREMIUM?`)) {
-        setUser(prev => ({
-          ...prev,
-          balanceRub: prev.balanceRub + 490,
-          tariff: 'premium'
-        }));
-        alert('Поздравляем! Ваш SMM комбайн повышен до уровня PREMIUM! Все лимиты сняты.');
+  // Triggering PRO / VIP Account Tariff upgrade
+  const handleUpgradeTariff = (plan: 'free' | 'pro' | 'vip' = 'pro', useIirky: boolean = false) => {
+    if (plan === 'free') {
+      setUser(prev => ({ ...prev, tariff: 'free' }));
+      alert('Вы переключили тариф на Free.');
+      return;
+    }
+
+    const costRur = plan === 'pro' ? 490 : 990;
+    const costIirky = plan === 'pro' ? 250 : 500;
+    const label = plan.toUpperCase();
+
+    if (useIirky) {
+      if ((user.iirky || 0) < costIirky) {
+        alert(`Недостаточно ИИрок! Для активации ${label} требуется ${costIirky} ИИрок. Ваш баланс: ${(user.iirky || 0).toLocaleString()} ИИрок.`);
+        return;
       }
-    } else {
       setUser(prev => ({
         ...prev,
-        balanceRub: prev.balanceRub - 490,
-        tariff: 'premium'
+        iirky: (prev.iirky || 0) - costIirky,
+        tariff: plan,
+        premiumUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString('ru-RU')
       }));
-      alert('Поздравляем! Ваш SMM комбайн повышен до уровня PREMIUM! Все лимиты сняты.');
+      alert(`Поздравляем! Вы активировали подписку ${label} на 30 дней за ${costIirky} ИИрок!`);
+    } else {
+      if (user.balanceRub < costRur) {
+        if (confirm(`Ваш текущий баланс (${user.balanceRub} ₽) недостаточен. Пополнить баланс на ${costRur} ₽ для активации подписки ${label}?`)) {
+          setUser(prev => ({
+            ...prev,
+            balanceRub: prev.balanceRub,
+            tariff: plan,
+            premiumUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString('ru-RU')
+          }));
+          alert(`Поздравляем! Ваш SMM комбайн успешно повышен до уровня ${label}!`);
+        }
+      } else {
+        setUser(prev => ({
+          ...prev,
+          balanceRub: prev.balanceRub - costRur,
+          tariff: plan,
+          premiumUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString('ru-RU')
+        }));
+        alert(`Поздравляем! Ваш SMM комбайн успешно повышен до уровня ${label}!`);
+      }
     }
   };
 
@@ -366,8 +547,21 @@ export default function App() {
   const totalViews = posts.reduce((sum, p) => sum + (p.views || 0), 12500);
   const totalClicks = posts.reduce((sum, p) => sum + (p.clicks || 0), 980);
 
+  if (!isLoggedIn) {
+    return (
+      <LandingPage 
+        onLogin={() => setIsLoggedIn(true)} 
+        user={user} 
+        onUpdateUser={setUser} 
+        currentPath={currentPath}
+        onNavigate={changeRoute}
+      />
+    );
+  }
+
   return (
-    <div className="min-h-screen flex flex-col md:flex-row pb-16 md:pb-0 font-sans" style={{ background: 'linear-gradient(135deg, #e0f2fe 0%, #ffedd5 50%, #fce7f3 100%)' }}>
+    <div className="min-h-screen flex flex-col md:flex-row pb-16 md:pb-0 font-sans relative overflow-hidden">
+      <LiquidGlassBackground />
       
       {/* 1. Desktop Sidebar Column */}
       <Sidebar 
@@ -378,37 +572,89 @@ export default function App() {
         balanceRub={user.balanceRub}
         userName={user.name}
         telegramUsername={user.telegramUsername}
+        iirky={user.iirky}
       />
 
       {/* 2. Main Workspace Layout */}
-      <div className="flex-1 min-w-0 flex flex-col h-screen overflow-y-auto no-scrollbar pt-4 px-4 md:p-6 lg:p-8 space-y-5">
+      <div className="flex-1 min-w-0 flex flex-col h-screen overflow-y-auto no-scrollbar pt-4 px-4 md:p-6 lg:p-8 space-y-5 relative z-10">
         
-        {/* Mobile Header Banner from reference screenshots */}
-        <div className="flex items-center justify-between p-4 rounded-xl bg-white/75 backdrop-blur border border-white/50 shadow-sm md:hidden shrink-0">
-          <div className="flex items-center gap-2">
-            <span className="p-1 px-2.5 bg-gradient-to-r from-orange-500 to-pink-500 rounded font-black text-white text-xs">ИИ</span>
-            <span className="font-black text-sm text-slate-800 tracking-tight">ИИSMM ПАНЕЛЬ</span>
-            {(user.telegramUsername === '@shishkarnem' || user.name.toLowerCase().includes('шишкар')) && (
-              <button 
-                onClick={() => changeRoute('/admin')}
-                className="px-2 py-0.5 bg-rose-600 text-white text-[8px] font-black rounded-full animate-pulse"
-              >
-                АДМИН 👑
-              </button>
-            )}
+        {/* Mobile Header Banner - Compact & Clean with Centered Burger Menu */}
+        <div className="flex items-center justify-between p-2.5 px-3 rounded-2xl bg-white/50 backdrop-blur-md border border-white/40 shadow-xs md:hidden shrink-0 relative">
+          {/* LEFT: Mini Brand Logo */}
+          <div className="flex items-center gap-1.5 cursor-pointer" onClick={() => changeRoute('/posts')}>
+            <span className="p-1 px-1.5 bg-gradient-to-r from-orange-400 to-pink-400 rounded-lg font-black text-white text-[10px]">ИИ</span>
+            <span className="font-black text-xs text-slate-800 tracking-tight">ИИSMM</span>
           </div>
-          {user.tariff === 'premium' ? (
-            <span className="px-2 py-0.5 bg-emerald-100 text-emerald-800 text-[9px] font-bold rounded">PREMIUM</span>
-          ) : (
+
+          {/* CENTER: Burger "Бутерброд" Menu Button */}
+          <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2">
             <button 
-              id="mobile-btn-upgrade"
-              onClick={handleUpgradeTariff}
-              className="px-2.5 py-1 bg-gradient-to-r from-orange-400 to-pink-500 text-white font-bold text-[9px] rounded shadow-sm hover:opacity-95"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)} 
+              className="bg-white/90 hover:bg-white text-slate-700 p-1 px-3.5 rounded-full text-[11px] font-black tracking-wide flex items-center gap-1.5 cursor-pointer border border-slate-200/50 shadow-xs active:scale-95 transition-all"
             >
-              UPGRADE
+              <span className="text-[13px] text-pink-500 font-bold">{mobileMenuOpen ? '✕' : '☰'}</span>
+              <span className="uppercase font-sans font-black tracking-wider text-[9px] text-slate-600">Меню</span>
             </button>
-          )}
+          </div>
+
+          {/* RIGHT: Upgrade status or Tariff */}
+          <div className="flex items-center gap-1.5">
+            {user.tariff === 'vip' ? (
+              <span className="px-2 py-0.5 bg-amber-100 text-amber-800 text-[8px] font-black rounded uppercase">★ VIP</span>
+            ) : user.tariff === 'pro' ? (
+              <span className="px-2 py-0.5 bg-indigo-100 text-indigo-800 text-[8px] font-black rounded uppercase">⚡ PRO</span>
+            ) : (
+              <span className="px-2 py-0.5 bg-slate-100 text-slate-700 text-[8px] font-black rounded uppercase">FREE</span>
+            )}
+            <span className="text-[10px] font-black text-slate-700 bg-white/70 px-2 py-0.5 rounded-lg border border-white font-mono">
+              {user.balanceRub} ₽
+            </span>
+          </div>
         </div>
+
+        {/* Floating Slide-Down Burger Menu Panel */}
+        <AnimatePresence>
+          {mobileMenuOpen && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              className="overflow-hidden md:hidden z-30 rounded-2xl bg-white/80 backdrop-blur-lg border border-white/50 p-3.5 shadow-xl space-y-2.5 relative"
+            >
+              <div className="text-[10px] font-black uppercase text-slate-400 tracking-wider text-center border-b pb-1.5 mb-2">
+                📂 Быстрая навигация ИИSMM
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                {[
+                  { label: '🚀 Старт', path: '/start', color: 'hover:bg-sky-50 text-slate-700' },
+                  { label: '📡 Каналы', path: '/channels', color: 'hover:bg-orange-50 text-slate-700' },
+                  { label: '✍️ Создать Пост', path: '/posts', color: 'hover:bg-pink-50 text-slate-700' },
+                  { label: '🛡 ИИ Биржа', path: '/market', color: 'hover:bg-indigo-50 text-slate-700' },
+                  { label: '📁 Папки Пиара', path: '/bundles', color: 'hover:bg-teal-50 text-slate-700' },
+                  { label: '📊 Кабинет', path: '/profile', color: 'hover:bg-purple-50 text-slate-700' },
+                ].map((item) => {
+                  const isActive = currentPath === item.path;
+                  return (
+                    <button
+                      key={item.path}
+                      onClick={() => {
+                        changeRoute(item.path);
+                        setMobileMenuOpen(false);
+                      }}
+                      className={`p-1.5 py-2.5 rounded-xl text-center font-black text-xs cursor-pointer border transition-all ${
+                        isActive 
+                          ? 'bg-gradient-to-r from-orange-100 to-pink-100 border-slate-950 text-slate-950 shadow-xs scale-[1.02]' 
+                          : `bg-white/60 border-slate-250 text-slate-700 ${item.color}`
+                      }`}
+                    >
+                      {item.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Dynamic Route View Switching */}
         <div className="flex-1">
@@ -421,17 +667,18 @@ export default function App() {
               transition={{ duration: 0.18 }}
             >
               {currentPath === '/start' && (
-                <ProfileAndOnboarding 
+                <StartPage 
                   user={user}
                   onUpgradeTariff={handleUpgradeTariff}
                   onReplenishTokens={handleReplenishTokens}
                   onReplenishBalance={handleReplenishBalance}
                   onUpdateUser={setUser}
+                  onTelegramRegister={handleTelegramOneClickRegister}
                 />
               )}
 
               {currentPath === '/channels' && (
-                <ChannelList 
+                <ChannelsPage 
                   channels={channels}
                   onAddChannel={handleAddChannel}
                   onRemoveChannel={handleRemoveChannel}
@@ -442,7 +689,7 @@ export default function App() {
               )}
 
               {currentPath === '/posts' && (
-                <PostMaker 
+                <PostsPage 
                   onPublishPost={handlePublishPost}
                   savedPosts={posts}
                   connectedChannels={channels}
@@ -452,7 +699,7 @@ export default function App() {
               )}
 
               {currentPath === '/market' && (
-                <AdMarketplace 
+                <MarketPage 
                   adListings={adListings}
                   bulletinAds={bulletinAds}
                   userTariff={user.tariff}
@@ -461,11 +708,15 @@ export default function App() {
                   onBuyAdSlot={handleBuyAdSlot}
                   onAddFunds={handleReplenishBalance}
                   onAdClick={handleAdClick}
+                  connectedChannels={channels}
+                  onAddAdListing={handleAddAdListing}
+                  onEarnMoney={handleEarnMoney}
+                  advertiserOrders={advertiserOrders}
                 />
               )}
 
               {currentPath === '/bundles' && (
-                <PromoBundles 
+                <BundlesPage 
                   bundles={bundles}
                   joinedChannelsIds={bundles.flatMap(b => b.joinedChannels.map(cid => b.id + '-' + cid))}
                   onAddBundle={handleAddBundle}
@@ -477,7 +728,7 @@ export default function App() {
               )}
 
               {currentPath === '/profile' && (
-                <AnalyticsDashboard 
+                <ProfilePage 
                   channelsCount={channels.length}
                   postsCount={posts.length}
                   totalViews={totalViews}
@@ -488,7 +739,7 @@ export default function App() {
               )}
 
               {currentPath === '/admin' && (
-                <SuperadminPanel 
+                <AdminPage 
                   currentUser={user}
                   onUpdateCurrentUser={setUser}
                   allChannelsCount={channels.length}

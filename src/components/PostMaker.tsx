@@ -4,6 +4,7 @@ import {
   Sparkles, Calendar, Plus, Trash2, ArrowRight, Eye, RefreshCw, Upload, Image as ImageIcon, Search, Check, AlertCircle, Link
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import SocialIcon from './SocialIcon';
 
 interface PostMakerProps {
   onPublishPost: (post: Omit<CampaignPost, 'id' | 'clicks' | 'views'>) => void;
@@ -322,7 +323,7 @@ export default function PostMaker({
               id="tab-ai-rewriter"
               onClick={() => setActiveTab('rewrite')}
               className={`flex-1 py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
-                activeTab === 'rewrite' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'
+                activeTab === 'rewrite' ? 'bg-white text-pink-650 shadow-sm' : 'text-slate-500 hover:text-slate-700'
               }`}
             >
               🎭 ИИ Рерайт под автора
@@ -332,8 +333,8 @@ export default function PostMaker({
           {/* Interactive Notifications block */}
           {apiNote && (
             <div className={`p-3.5 rounded-xl border text-xs flex items-start gap-2.5 font-medium ${
-              apiNote.status === 'success' ? 'bg-emerald-50 border-emerald-200 text-emerald-700' :
-              apiNote.status === 'error' ? 'bg-red-50 border-red-200 text-red-700' : 'bg-blue-50 border-blue-200 text-blue-700'
+              apiNote.status === 'success' ? 'bg-orange-50 border-orange-200 text-orange-700' :
+              apiNote.status === 'error' ? 'bg-red-50 border-red-200 text-red-700' : 'bg-orange-50 border-orange-200 text-orange-700'
             }`}>
               {apiNote.status === 'error' ? (
                 <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
@@ -498,16 +499,16 @@ export default function PostMaker({
                 type="button"
                 disabled={aiGenerating}
                 onClick={runAiPostGenerator}
-                className="w-full py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl shadow transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                className="w-full py-2.5 bg-gradient-to-r from-orange-100 to-pink-100 border border-white hover:opacity-95 text-slate-900 font-extrabold text-xs rounded-xl shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
               >
                 {aiGenerating ? (
                   <>
-                    <RefreshCw className="w-4 h-4 animate-spin" />
+                    <RefreshCw className="w-4 h-4 animate-spin text-slate-700" />
                     <span>Сканируем тренды и пишем пост ИИ...</span>
                   </>
                 ) : (
                   <>
-                    <Sparkles className="w-4 h-4 text-orange-400 fill-orange-400" />
+                    <Sparkles className="w-4 h-4 text-pink-500 fill-pink-500" />
                     <span>Сгенерировать ИИ-Пост (15 токенов)</span>
                   </>
                 )}
@@ -519,7 +520,7 @@ export default function PostMaker({
           {activeTab === 'rewrite' && (
             <div className="p-5 rounded-2xl bg-white/70 backdrop-blur-md border border-white/40 shadow-sm space-y-4">
               <div className="flex justify-between items-center pb-2 border-b border-slate-100">
-                <span className="text-xs font-extrabold text-indigo-600 tracking-wider flex items-center gap-1.5">
+                <span className="text-xs font-extrabold text-pink-600 tracking-wider flex items-center gap-1.5">
                   🎭 ИИ Рерайт под авторский стиль
                 </span>
                 <span className="text-xs font-mono bg-slate-100 text-slate-600 px-2 py-0.5 rounded-md">Баланс: {tokens} токенов</span>
@@ -542,12 +543,12 @@ export default function PostMaker({
                     placeholder="t.me/shishkarnem или vk.com/smm_creator"
                     value={styleReferenceUrl}
                     onChange={(e) => setStyleReferenceUrl(e.target.value)}
-                    className="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:border-indigo-400 bg-white"
+                    className="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:border-orange-400 bg-white"
                   />
                 </div>
               </div>
 
-              <div className="p-3 bg-indigo-50/50 rounded-xl border border-indigo-100 text-[11px] text-slate-600">
+              <div className="p-3 bg-orange-50/50 rounded-xl border border-orange-100 text-[11px] text-slate-605">
                 ⚠️ <span className="font-bold">Как это работает:</span> Напишите свой черновик на вкладке «Ассистент», затем вернитесь сюда и раздайте стиль в один клик! Текущий текст в редакторе будет заменен адаптированным.
               </div>
 
@@ -556,16 +557,16 @@ export default function PostMaker({
                 type="button"
                 disabled={rewriting}
                 onClick={runStyleRewrite}
-                className="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl shadow transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                className="w-full py-2.5 bg-gradient-to-r from-orange-100 to-pink-100 border border-white hover:from-orange-200 hover:to-pink-200 text-slate-900 font-extrabold text-xs rounded-xl shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
               >
                 {rewriting ? (
                   <>
-                    <RefreshCw className="w-4 h-4 animate-spin" />
+                    <RefreshCw className="w-4 h-4 animate-spin text-slate-700" />
                     <span>Анализируем канал автора и переписываем...</span>
                   </>
                 ) : (
                   <>
-                    <RefreshCw className="w-4 h-4" />
+                    <RefreshCw className="w-4 h-4 text-slate-700" />
                     <span>Сделать ИИ-Рерайт черновика (20 токенов)</span>
                   </>
                 )}
@@ -585,13 +586,13 @@ export default function PostMaker({
                     key={net.key}
                     type="button"
                     onClick={() => togglePlatform(net.key)}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition-all ${
+                    className={`px-3 py-1.5 rounded-lg text-xs font-black flex items-center gap-1.5 cursor-pointer transition-all ${
                       active 
-                        ? 'bg-slate-900 text-white shadow' 
-                        : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
+                        ? 'bg-gradient-to-r from-orange-100 to-pink-100/90 border border-orange-200/50 text-slate-900 shadow-2xs' 
+                        : 'bg-white/60 text-slate-600 border border-slate-200 hover:bg-slate-50'
                     }`}
                   >
-                    <span>{net.icon}</span>
+                    <SocialIcon platform={net.key} size={14} className={active ? 'text-white' : ''} />
                     <span>{net.name}</span>
                   </button>
                 );
@@ -676,7 +677,7 @@ export default function PostMaker({
                   id="btn-add-inline-button"
                   type="button"
                   onClick={addColoredButton}
-                  className="px-3 bg-slate-900 text-white rounded-lg text-xs font-bold shadow hover:bg-slate-800 cursor-pointer self-end h-[30px]"
+                  className="px-3 bg-gradient-to-r from-orange-100 to-pink-100 border border-orange-200 text-slate-950 rounded-lg text-xs font-black shadow-2xs hover:opacity-95 cursor-pointer self-end h-[30px] flex items-center justify-center animate-pulse"
                 >
                   <Plus className="w-3.5 h-3.5" />
                 </button>
@@ -726,16 +727,16 @@ export default function PostMaker({
             id="btn-trigger-publish"
             type="button"
             onClick={handlePublishClick}
-            className="w-full py-3.5 bg-gradient-to-r from-orange-500 via-pink-500 to-purple-600 text-white hover:opacity-90 font-bold rounded-xl shadow-lg transition-all active:scale-95 text-sm flex items-center justify-center gap-2 cursor-pointer"
+            className="w-full py-3.5 bg-gradient-to-r from-orange-100 to-pink-100 border border-white text-slate-900 font-extrabold rounded-xl shadow-xs transition-all active:scale-95 text-sm flex items-center justify-center gap-2 cursor-pointer"
           >
             {isScheduled ? (
               <>
-                <Calendar className="w-5 h-5" />
+                <Calendar className="w-5 h-5 text-pink-500" />
                 <span>Запланировать отложенный пост</span>
               </>
             ) : (
               <>
-                <ArrowRight className="w-5 h-5" />
+                <ArrowRight className="w-5 h-5 text-slate-800" />
                 <span>Мгновенный кросспостинг во все каналы</span>
               </>
             )}
@@ -748,7 +749,7 @@ export default function PostMaker({
           <span className="text-xs font-bold text-slate-500 uppercase tracking-wider block">Визуальный предпросмотр инфо</span>
           
           {/* Glass simulated mobile preview layout from mock screenshots */}
-          <div className="rounded-3xl border border-white/50 bg-gradient-to-b from-sky-100/60 via-orange-50/60 to-pink-100/60 shadow-xl p-4 min-h-[500px] flex flex-col justify-between backdrop-blur-md">
+          <div className="rounded-3xl border border-white/50 bg-gradient-to-b from-orange-100/60 via-amber-50/60 to-pink-100/60 shadow-xl p-4 min-h-[500px] flex flex-col justify-between backdrop-blur-md text-slate-800">
             
             <div className="space-y-3">
               <div className="flex items-center justify-between border-b border-white/30 pb-2">
@@ -847,12 +848,12 @@ export default function PostMaker({
                   <div className="flex items-center gap-2">
                     <span className="font-bold text-slate-800">{post.title}</span>
                     <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${
-                      post.status === 'scheduled' ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700'
+                      post.status === 'scheduled' ? 'bg-amber-100 text-amber-700' : 'bg-orange-100 text-orange-700'
                     }`}>
                       {post.status === 'scheduled' ? 'Отложенный' : 'Опубликован'}
                     </span>
                     {post.isAiGenerated && (
-                      <span className="text-[10px] bg-purple-100 text-purple-700 px-1 py-0.5 rounded">ИИ</span>
+                      <span className="text-[10px] bg-orange-100 text-orange-850 px-1 py-0.5 rounded">ИИ</span>
                     )}
                   </div>
                   <p className="text-slate-500 truncate font-mono">{post.content}</p>
