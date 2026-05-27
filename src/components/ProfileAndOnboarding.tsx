@@ -813,11 +813,11 @@ export default function ProfileAndOnboarding({
             <div className="p-5 rounded-2xl bg-white/70 backdrop-blur border border-white/50 space-y-4">
               <div className="flex justify-between items-center border-b pb-2">
                 <h3 className="font-extrabold text-sm text-slate-800">Быстрые советы для старта ИИSMM</h3>
-                <span className="text-[10px] text-orange-700 font-mono">Бот контроля: @iiSmmBot</span>
+                <span className="text-[10px] text-orange-700 font-mono">Бот контроля: <a href="https://t.me/iismmAIbot" target="_blank" rel="noopener noreferrer" className="underline hover:text-orange-900 transition-colors">@iismmAIbot</a></span>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs font-medium">
                 <div className="p-3 bg-slate-50/50 rounded-xl space-y-1">
-                  <span className="font-black text-orange-600">1. Добавьте @iiSmmBot</span>
+                  <span className="font-black text-orange-600">1. Добавьте <a href="https://t.me/iismmAIbot" target="_blank" rel="noopener noreferrer" className="underline hover:text-orange-850">@iismmAIbot</a></span>
                   <p className="text-slate-500 text-[11px] leading-relaxed">
                     Добавьте нашего бота в администраторы своего телеграм канала с правами отправки текстов и кнопок.
                   </p>
@@ -945,12 +945,12 @@ export default function ProfileAndOnboarding({
 
       <AnimatePresence>
         {showTelegramAuth && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/15 backdrop-blur-3xl">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-transparent backdrop-blur-[2px]">
             <motion.div 
               initial={{ opacity: 0, scale: 0.95, y: 15 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 15 }}
-              className="w-full max-w-sm apple-liquid-glass-heavy rounded-[28px] overflow-hidden shadow-2xl border border-white/60 p-1 bg-white/75 backdrop-blur-xl"
+              className="w-full max-w-sm apple-liquid-glass-heavy rounded-[28px] overflow-hidden shadow-2xl border border-white/60 p-1 bg-white/75 backdrop-blur-md"
             >
               <div className="bg-gradient-to-r from-orange-400 via-pink-500 to-sky-450 p-5 rounded-[24px] text-white flex justify-between items-center shadow-md border border-white/20">
                 <div className="flex items-center gap-2.5">
@@ -961,7 +961,9 @@ export default function ProfileAndOnboarding({
                   </div>
                   <div>
                     <h4 className="font-extrabold text-sm text-white tracking-tight">Связать аккаунт Telegram</h4>
-                    <span className="text-[10px] text-orange-50/90 block mt-1 font-mono">@iiSmmBot Secure Links</span>
+                    <span className="text-[10px] text-orange-50/90 block mt-1 font-mono">
+                      <a href="https://t.me/iismmAIbot" target="_blank" rel="noopener noreferrer" className="hover:text-white underline">@iismmAIbot</a> Secure Links
+                    </span>
                   </div>
                 </div>
                 <button 

@@ -347,6 +347,10 @@
   border-radius: 20px;
   transform-origin: center;
   backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transform-style: preserve-3d;
+  -webkit-transform-style: preserve-3d;
+  will-change: transform, opacity;
   transition: opacity 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease;
   user-select: none;
 }
@@ -380,4 +384,18 @@ body {
   overflow-x: hidden;
   color: #1e293b; /* slate-800 */
 }
+
+/* Blue-Pink-Orange-Pink-Blue Multicolor Gradients */
+.bg-multicolor-gradient {
+  background: linear-gradient(90deg, #38bdf8 0%, #ec4899 25%, #f97316 50%, #ec4899 75%, #38bdf8 100%) !important;
+}
+
+.text-multicolor-gradient {
+  background: linear-gradient(90deg, #38bdf8 0%, #ec4899 25%, #f97316 50%, #ec4899 75%, #38bdf8 100%) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  color: transparent !important;
+}
+
 

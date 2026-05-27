@@ -608,7 +608,7 @@ export const InteractiveFeatureSimulator: React.FC<InteractiveFeatureSimulatorPr
         return (
           <div className="space-y-3.5 text-xs">
             <div className="flex justify-between items-center text-[10px] uppercase font-bold text-orange-605">
-              <span>🤖 Мобильный пульт управления @iiSmmBot</span>
+              <span>🤖 Мобильный пульт управления <a href="https://t.me/iismmAIbot" target="_blank" rel="noopener noreferrer" className="underline hover:text-orange-950 transition-colors">@iismmAIbot</a></span>
               <span className="font-mono bg-orange-100 text-orange-850 px-2 py-0.5 rounded">Шаг {step + 1}/3</span>
             </div>
 
@@ -638,9 +638,11 @@ export const InteractiveFeatureSimulator: React.FC<InteractiveFeatureSimulatorPr
                     <span className="w-2 h-2 rounded-full bg-orange-550 animate-ping"></span>
                     <span>Нативное пуш-уведомление</span>
                   </div>
-                  <div className="bg-gradient-to-tr from-slate-900 via-slate-950 to-slate-900 text-white p-2.5 rounded-xl border border-slate-700/60 text-[10px] space-y-1 shadow-md">
-                    <span className="text-orange-400 block font-bold">🔔 Бот @iiSmmBot:</span>
-                    <p className="text-[9px] text-slate-200">"Пост в Telegram канале @tech_trends успешно опубликован! Нажата кнопка «Пройти Опрос». ER растет!"</p>
+                  <div className="bg-gradient-to-tr from-white to-orange-50/50 text-slate-800 p-2.5 rounded-xl border border-orange-100/70 text-[10px] space-y-1 shadow-xs">
+                    <span className="text-orange-600 block font-bold">
+                      🔔 Бот <a href="https://t.me/iismmAIbot" target="_blank" rel="noopener noreferrer" className="underline hover:text-orange-950">@iismmAIbot</a>:
+                    </span>
+                    <p className="text-[9px] text-slate-650 font-medium">"Пост в Telegram канале @tech_trends успешно опубликован! Нажата кнопка «Пройти Опрос». ER растет!"</p>
                   </div>
                 </motion.div>
               )}
@@ -655,7 +657,7 @@ export const InteractiveFeatureSimulator: React.FC<InteractiveFeatureSimulatorPr
                 >
                   <div className="font-bold text-slate-800">3. Управление из мессенджера</div>
                   <p className="text-[10px] text-slate-500">Управляйте тарифами, выводите баланс и общайтесь с аудиторией через встроенную консоль.</p>
-                  <span className="text-[9px] bg-slate-900 text-white px-2 py-1 rounded font-black block w-fit">💬 КОНСОЛЬ АКТИВНА</span>
+                  <span className="text-[9px] bg-orange-100 text-orange-900 border border-orange-200/50 px-2.5 py-1 rounded font-black block w-fit">💬 КОНСОЛЬ АКТИВНА</span>
                 </motion.div>
               )}
             </AnimatePresence>

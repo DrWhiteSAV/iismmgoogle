@@ -23,8 +23,12 @@ interface FeatureItem {
 export default function FeaturesCarousel() {
   const [activeIndex, setActiveIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(true);
+  const [progress, setProgress] = useState(0);
   const [slideDirection, setSlideDirection] = useState<'left' | 'right'>('right');
   const timerRef = useRef<number | null>(null);
+
+  const [dragOffset, setDragOffset] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
 
   const features: FeatureItem[] = [
     {
@@ -192,7 +196,7 @@ export default function FeaturesCarousel() {
     {
       id: 10,
       type: 'bot',
-      title: 'Мобильный пульт управления в Telegram @iiSmmBot',
+      title: 'Мобильный пульт управления в Telegram @iismmAIbot',
       shortTitle: 'Telegram Бот',
       badge: 'Экосистема',
       badgeTheme: 'border-sky-200/50 text-sky-800 bg-sky-100/50',
@@ -209,18 +213,33 @@ export default function FeaturesCarousel() {
     }
   ];
 
-  // Auto-play control loop
+  // Auto-play control loop with dynamic progress bar
   useEffect(() => {
+    let intervalId: number;
+    const AUTO_PLAY_DURATION = 16000; // 16 seconds per slide (2x slower)
+    const PROGRESS_STEP_MS = 40; // update progress every 40ms (~25fps)
+
     if (isPlaying) {
-      timerRef.current = window.setInterval(() => {
-        setSlideDirection('right');
-        setActiveIndex((prev) => (prev + 1) % features.length);
-      }, 16000);
+      const startTime = Date.now();
+      intervalId = window.setInterval(() => {
+        const elapsed = Date.now() - startTime;
+        const pct = Math.min((elapsed / AUTO_PLAY_DURATION) * 100, 100);
+        setProgress(pct);
+        
+        if (pct >= 100) {
+          setSlideDirection('right');
+          setActiveIndex((prev) => (prev + 1) % features.length);
+          setProgress(0);
+        }
+      }, PROGRESS_STEP_MS);
+    } else {
+      setProgress(0);
     }
+
     return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
+      if (intervalId) clearInterval(intervalId);
     };
-  }, [isPlaying, activeIndex]);
+  }, [isPlaying, activeIndex, features.length]);
 
   const handleNext = () => {
     setSlideDirection('right');
@@ -235,6 +254,76 @@ export default function FeaturesCarousel() {
   const handleTabClick = (index: number) => {
     setSlideDirection(index > activeIndex ? 'right' : 'left');
     setActiveIndex(index);
+  };
+
+  const swipeStartX = useRef<number | null>(null);
+  const swipeEndX = useRef<number | null>(null);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    swipeStartX.current = e.touches[0].clientX;
+    swipeEndX.current = e.touches[0].clientX;
+    setIsDragging(true);
+    setDragOffset(0);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    swipeEndX.current = e.touches[0].clientX;
+    if (swipeStartX.current !== null) {
+      setDragOffset(e.touches[0].clientX - swipeStartX.current);
+    }
+  };
+
+  const handleTouchEnd = () => {
+    if (swipeStartX.current === null || swipeEndX.current === null) {
+      setIsDragging(false);
+      setDragOffset(0);
+      return;
+    }
+    const diff = swipeStartX.current - swipeEndX.current;
+    const minDistance = 50; // in pixels
+    if (diff > minDistance) {
+      handleNext();
+    } else if (diff < -minDistance) {
+      handlePrev();
+    }
+    swipeStartX.current = null;
+    swipeEndX.current = null;
+    setIsDragging(false);
+    setDragOffset(0);
+  };
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (e.button !== 0) return;
+    swipeStartX.current = e.clientX;
+    swipeEndX.current = e.clientX;
+    setIsDragging(true);
+    setDragOffset(0);
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (swipeStartX.current !== null) {
+      swipeEndX.current = e.clientX;
+      setDragOffset(e.clientX - swipeStartX.current);
+    }
+  };
+
+  const handleMouseUp = () => {
+    if (swipeStartX.current === null || swipeEndX.current === null) {
+      setIsDragging(false);
+      setDragOffset(0);
+      return;
+    }
+    const diff = swipeStartX.current - swipeEndX.current;
+    const minDistance = 50; // in pixels
+    if (diff > minDistance) {
+      handleNext();
+    } else if (diff < -minDistance) {
+      handlePrev();
+    }
+    swipeStartX.current = null;
+    swipeEndX.current = null;
+    setIsDragging(false);
+    setDragOffset(0);
   };
 
   const currentFeature = features[activeIndex];
@@ -297,8 +386,42 @@ export default function FeaturesCarousel() {
     <div id="abilities-carousel-container" className="w-full max-w-7xl mx-auto px-1 sm:px-4 mt-8 relative space-y-8 overflow-visible">
       
       {/* 1. Main 3D Carousel Stage */}
-      <div id="abilities-3d-stage" className="w-full relative overflow-visible flex items-center justify-center p-2 sm:p-4">
+      <div 
+        id="abilities-3d-stage" 
+        className="w-full relative overflow-visible flex items-center justify-center p-2 sm:p-4 select-none cursor-grab active:cursor-grabbing"
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={handleMouseUp}
+      >
         
+        {/* Left Floating Navigation Arrow - completely flat & outside 3D perspective wrapper to prevent blocking */}
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            handlePrev();
+          }}
+          className="absolute left-[-10px] sm:left-[-20px] md:left-0 lg:left-4 xl:left-8 top-1/2 -translate-y-1/2 z-50 w-11 h-11 sm:w-14 sm:h-14 rounded-full bg-white/95 border border-slate-200 text-slate-700 hover:text-orange-500 hover:bg-slate-50 hover:scale-110 active:scale-95 transition-all shadow-md flex items-center justify-center cursor-pointer"
+          aria-label="Предыдущий слайд"
+        >
+          <ChevronLeft className="w-6 h-6 sm:w-8 sm:h-8" />
+        </button>
+
+        {/* Right Floating Navigation Arrow - completely flat & outside 3D perspective wrapper to prevent blocking */}
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            handleNext();
+          }}
+          className="absolute right-[-10px] sm:right-[-20px] md:right-0 lg:right-4 xl:right-8 top-1/2 -translate-y-1/2 z-50 w-11 h-11 sm:w-14 sm:h-14 rounded-full bg-white/95 border border-slate-200 text-slate-700 hover:text-orange-500 hover:bg-slate-50 hover:scale-110 active:scale-95 transition-all shadow-md flex items-center justify-center cursor-pointer"
+          aria-label="Следующий слайд"
+        >
+          <ChevronRight className="w-6 h-6 sm:w-8 sm:h-8" />
+        </button>
+
         {/* The 3D Carousel container */}
         <div className="icon-cards pb-6 relative overflow-visible">
           <div 
@@ -322,15 +445,21 @@ export default function FeaturesCarousel() {
               if (diff === 0) {
                 cardOpacity = 1;
                 scaleVal = 1.0;
-                pointerEventsStyle = 'auto';
+                pointerEventsStyle = 'auto'; // Active card is fully interactive
               } else if (diff === 1) {
                 cardOpacity = 0.32;
                 scaleVal = 0.85;
-                pointerEventsStyle = 'auto'; // clicking neighbor card flips the carousel to it
+                pointerEventsStyle = 'none'; // Avoid overlays blocking the active card controls
               } else if (diff === 2) {
                 cardOpacity = 0.06;
                 scaleVal = 0.72;
               }
+
+              const dragX = isActive ? dragOffset * 0.5 : 0;
+              const dragRotate = isActive ? dragOffset * 0.02 : 0;
+              const transitionStyle = (isActive && isDragging)
+                ? 'opacity 0.5s ease, border-color 0.5s ease, box-shadow 0.5s ease'
+                : 'transform 0.5s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.5s ease, border-color 0.5s ease, box-shadow 0.5s ease';
               
               return (
                 <div
@@ -340,22 +469,24 @@ export default function FeaturesCarousel() {
                       handleTabClick(idx);
                     }
                   }}
-                  className={`icon-cards__item absolute inset-0 rounded-[32px] overflow-hidden border p-5 sm:p-8 flex flex-col justify-between transition-all duration-700 select-none ${
+                  className={`icon-cards__item absolute inset-0 rounded-[32px] border p-5 sm:p-8 flex flex-col justify-between select-none ${
                     isActive 
-                      ? 'border-white/90 shadow-[0_20px_60px_rgba(236,72,153,0.18)]' 
-                      : 'border-white/20 shadow-none'
+                      ? 'border-white/90 shadow-[0_20px_60px_rgba(236,72,153,0.18)] overflow-visible' 
+                      : 'border-white/20 shadow-none overflow-hidden'
                   }`}
                   style={{
-                    transform: `rotateY(${angle}deg) translateZ(${radius}px) scale(${scaleVal})`,
+                    transform: `rotateY(${angle}deg) translateZ(${isActive ? radius : radius - 140}px) scale(${scaleVal}) translateX(${dragX}px) rotate(${dragRotate}deg)`,
                     background: 'rgba(255, 255, 255, 0.93)',
                     borderColor: isActive ? 'rgba(236,72,153,0.35)' : 'rgba(148, 163, 184, 0.12)',
                     opacity: cardOpacity,
+                    visibility: diff > 1 ? 'hidden' : 'visible',
                     pointerEvents: pointerEventsStyle,
                     zIndex: isActive ? 40 : (diff === 1 ? 20 : 10),
+                    transition: transitionStyle,
                   }}
                 >
-                  {/* Internal card layout - clean and compact */}
-                  <div className="w-full h-full flex flex-col lg:grid lg:grid-cols-12 gap-5 sm:gap-6 items-center">
+                  {/* Internal card layout - clean and compact with pointer-events-auto */}
+                  <div className="w-full h-full flex flex-col lg:grid lg:grid-cols-12 gap-5 sm:gap-6 items-center pointer-events-auto">
                     
                     {/* Left details (Title + Description + Bullets) */}
                     <div className="lg:col-span-7 space-y-3 sm:space-y-4 w-full text-left relative z-10 font-sans h-full flex flex-col justify-between">
@@ -366,24 +497,74 @@ export default function FeaturesCarousel() {
                             <span className="text-2xl sm:text-3.5xl font-black bg-gradient-to-r from-orange-500 via-pink-500 to-sky-450 bg-clip-text text-transparent leading-none">
                               {item.id < 10 ? `0${item.id}` : item.id}
                             </span>
-                            <span className={`p-1 px-2.5 border text-[8px] uppercase font-bold tracking-widest rounded-full ${item.badgeTheme}`}>
-                              {item.badge}
-                            </span>
                           </div>
                           
-                          {/* Active Pulsing Core Indicator */}
+                          {/* Active Play/Pause Autoplay Progress Control Block */}
                           {isActive && (
-                            <span className="flex items-center gap-1.5 text-[8px] tracking-wider uppercase font-extrabold text-slate-505">
-                              <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" />
-                              Active core
-                            </span>
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setIsPlaying(!isPlaying);
+                              }}
+                              className="relative overflow-hidden px-3.5 py-1.5 bg-gradient-to-r from-sky-400 to-pink-500 border border-white/40 rounded-full text-[9px] font-black uppercase tracking-wider text-white shadow-md cursor-pointer hover:scale-102 active:scale-98 transition-all pointer-events-auto select-none"
+                            >
+                              {/* Orange filling background */}
+                              {isPlaying && (
+                                <div 
+                                  className="absolute left-0 top-0 bottom-0 bg-gradient-to-r from-orange-500 to-amber-500 pointer-events-none"
+                                  style={{ 
+                                    width: `${progress}%`,
+                                    transition: 'width 40ms linear'
+                                  }}
+                                />
+                              )}
+                              
+                              <span className="relative z-10 flex items-center gap-1.5">
+                                {isPlaying ? (
+                                  <>
+                                    <Pause className="w-2.5 h-2.5 text-white fill-white shrink-0" />
+                                    <span>Пауза</span>
+                                  </>
+                                ) : (
+                                  <>
+                                    <Play className="w-2.5 h-2.5 text-white fill-white shrink-0 animate-pulse" />
+                                    <span>Запуск</span>
+                                  </>
+                                )}
+                              </span>
+                            </button>
                           )}
                         </div>
 
                         {/* Title & Description */}
                         <div>
-                          <h3 className="text-sm sm:text-base font-black tracking-tight leading-snug text-slate-900 uppercase">
-                            {item.title}
+                          <h3 
+                            className="text-sm sm:text-base font-black tracking-tight leading-snug uppercase bg-clip-text text-transparent"
+                            style={{ 
+                              background: 'linear-gradient(90deg, #38bdf8 0%, #ec4899 25%, #f97316 50%, #ec4899 75%, #38bdf8 100%)',
+                              WebkitBackgroundClip: 'text',
+                              WebkitTextFillColor: 'transparent'
+                            }}
+                          >
+                            {item.title.includes('@iismmAIbot') ? (
+                              <>
+                                {item.title.split('@iismmAIbot')[0]}
+                                <span className="inline-block pointer-events-auto pr-0.5">
+                                  <a 
+                                    href="https://t.me/iismmAIbot" 
+                                    target="_blank" 
+                                    rel="noopener noreferrer" 
+                                    onClick={(e) => e.stopPropagation()} 
+                                    className="underline hover:opacity-80 transition-opacity cursor-pointer inline"
+                                    style={{ WebkitTextFillColor: 'initial', color: '#db2777' }}
+                                  >
+                                    @iismmAIbot
+                                  </a>
+                                </span>
+                                {item.title.split('@iismmAIbot')[1]}
+                              </>
+                            ) : item.title}
                           </h3>
                           <p className="text-slate-650 text-[10px] sm:text-xs leading-relaxed mt-1.5">
                             {item.desc}
@@ -441,50 +622,8 @@ export default function FeaturesCarousel() {
 
       </div>
 
-      {/* 2. 3D Control Center & Jelly Checkbox & Progress Info */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-6 px-4 bg-white/45 backdrop-blur-xl border border-slate-200/60 p-4 rounded-3xl max-w-lg mx-auto shadow-sm relative z-40">
-        
-        {/* Navigation buttons */}
-        <div className="flex items-center gap-2.5">
-          <button
-            onClick={handlePrev}
-            className="p-2 px-3.5 rounded-xl bg-white border border-slate-200 text-slate-700 hover:text-orange-500 hover:bg-slate-50 transition-all font-black text-xs uppercase tracking-wider flex items-center gap-1 cursor-pointer active:scale-97 shadow-xs"
-          >
-            ◀ Назад
-          </button>
-          
-          <div className="bg-slate-150/80 p-1.5 px-3 rounded-xl text-[10px] font-mono font-black text-slate-650 shadow-inner">
-            {activeIndex + 1 < 10 ? `0${activeIndex + 1}` : activeIndex + 1} / 10
-          </div>
-          
-          <button
-            onClick={handleNext}
-            className="p-2 px-3.5 rounded-xl bg-white border border-slate-200 text-slate-700 hover:text-orange-500 hover:bg-slate-50 transition-all font-black text-xs uppercase tracking-wider flex items-center gap-1 cursor-pointer active:scale-97 shadow-xs"
-          >
-            Далее ▶
-          </button>
-        </div>
-
-        {/* Dynamic Jelly Checkbox! */}
-        <label className="flex items-center gap-2.5 cursor-pointer select-none text-slate-800 hover:text-slate-900 transition-all">
-          <input 
-            type="checkbox" 
-            checked={isPlaying} 
-            onChange={() => setIsPlaying(!isPlaying)}
-            className="hidden" 
-          />
-          <div className={`w-[22px] h-[22px] rounded-lg border-2 border-pink-500/80 bg-white flex items-center justify-center transition-all ${isPlaying ? 'bg-gradient-to-r from-orange-400 to-pink-500 border-transparent jelly-animate shadow-md' : 'shadow-inner'}`}>
-            {isPlaying && (
-              <svg className="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="4">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-              </svg>
-            )}
-          </div>
-          <span className="text-[11px] uppercase font-black tracking-widest bg-gradient-to-r from-orange-500 to-pink-500 bg-clip-text text-transparent">
-            3D Спин-Тур
-          </span>
-        </label>
-      </div>
+      {/* Deleted global Tour Control Button */}
+      <div className="h-2" />
 
       {/* 3. Bottom Slide Dot Indicators */}
       <div className="flex justify-center items-center gap-2 pb-4">

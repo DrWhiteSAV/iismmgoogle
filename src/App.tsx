@@ -12,6 +12,8 @@ import BundlesPage from './pages/BundlesPage';
 import ProfilePage from './pages/ProfilePage';
 import AdminPage from './pages/AdminPage';
 import LandingPage from './pages/LandingPage';
+import BlogPage from './pages/BlogPage';
+import AIPage from './pages/AIPage';
 import LiquidGlassBackground from './components/LiquidGlassBackground';
 import { Sparkles, Play, ShieldCheck, Mail, MessageSquare, AlertTriangle, Lightbulb } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
@@ -50,11 +52,11 @@ export default function App() {
   useEffect(() => {
     const handleLocationChange = () => {
       const path = window.location.pathname;
-      const landingPaths = ['/main', '/blog', '/ai', '/market-exchange', '/analytics', '/advantages', '/posts-info', '/canvas', '/reposter', '/prices', '/projects', '/academy'];
+      const landingPaths = ['/main', '/blog', '/ai', '/market-exchange', '/canvas', '/prices', '/projects', '/academy'];
       const appPaths = ['/start', '/channels', '/posts', '/market', '/bundles', '/profile', '/admin'];
       const validPaths = [...appPaths, ...landingPaths];
 
-      if (validPaths.includes(path)) {
+      if (validPaths.includes(path) || path.startsWith('/blog/')) {
         setCurrentPath(path);
       } else if (path === '/' || path === '') {
         const defaultPath = isLoggedIn ? '/posts' : '/main';
@@ -248,9 +250,9 @@ export default function App() {
     {
       id: 'bull-1',
       title: 'Устали от спама в комментариях Telegram?',
-      content: 'Добавьте нашего бота @iiSmmBot в комментарии вашего канала! Он автоматически чистит спам со ссылками, борется с ИИ-комментаторами и организует мгновенные репосты.',
-      linkUrl: 'https://t.me/iiSmmBot',
-      postedBy: '@iiSmmBot_support',
+      content: 'Добавьте нашего бота @iismmAIbot в комментарии вашего канала! Он автоматически чистит спам со ссылками, борется с ИИ-комментаторами и организует мгновенные репосты.',
+      linkUrl: 'https://t.me/iismmAIbot',
+      postedBy: '@iismmAIbot_support',
       createdAt: '2026-05-23T10:15:00.000Z',
       clicks: 220
     },
@@ -277,11 +279,11 @@ export default function App() {
     },
     {
       id: 'ord-2',
-      title: 'Продвижение экосистемы @iiSmmBot',
+      title: 'Продвижение экосистемы @iismmAIbot',
       payoutRub: 550,
       platform: 'telegram',
       requirements: 'Опубликовать на 24 часа.',
-      postContent: '🤖 Подключи @iiSmmBot прямо сейчас! Авточистка лохотронов, спама, рекламы ставок в комментариях вашего канала. Работает бесплатно.'
+      postContent: '🤖 Подключи @iismmAIbot прямо сейчас! Авточистка лохотронов, спама, рекламы ставок в комментариях вашего канала. Работает бесплатно.'
     },
     {
       id: 'ord-3',
@@ -744,6 +746,18 @@ export default function App() {
                   onUpdateCurrentUser={setUser}
                   allChannelsCount={channels.length}
                 />
+              )}
+
+              {(currentPath === '/blog' || currentPath.startsWith('/blog/')) && (
+                <BlogPage 
+                  currentPath={currentPath}
+                  onNavigate={changeRoute}
+                  isLoggedIn={true}
+                />
+              )}
+
+              {currentPath === '/ai' && (
+                <AIPage />
               )}
             </motion.div>
           </AnimatePresence>

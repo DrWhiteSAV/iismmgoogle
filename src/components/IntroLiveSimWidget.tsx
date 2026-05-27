@@ -27,24 +27,12 @@ export default function IntroLiveSimWidget() {
   }, [activeStep]);
 
   return (
-    <div id="intro-live-showroom" className="w-full bg-white/70 backdrop-blur-xl text-slate-800 rounded-3xl border border-white shadow-xl p-5 sm:p-6 flex flex-col justify-between overflow-hidden relative min-h-[350px] group/sim">
+    <div id="intro-live-showroom" className="w-full bg-white/70 backdrop-blur-xl text-slate-800 rounded-3xl border border-white shadow-xl p-5 sm:p-6 flex flex-col justify-between overflow-hidden relative h-[420px] sm:h-[400px] group/sim">
       {/* Dynamic ambient glowing background sphere */}
       <div className="absolute -top-10 -right-10 w-44 h-44 bg-pink-400/15 rounded-full blur-2xl pointer-events-none" />
       <div className="absolute -bottom-10 -left-10 w-44 h-44 bg-orange-400/15 rounded-full blur-2xl pointer-events-none" />
 
-      {/* Terminal Header */}
-      <div className="flex items-center justify-between border-b border-slate-200/55 pb-3 mb-4">
-        <div className="flex items-center gap-1.5">
-          <span className="w-2.5 h-2.5 rounded-full bg-rose-400 opacity-90" />
-          <span className="w-2.5 h-2.5 rounded-full bg-amber-400 opacity-90" />
-          <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 opacity-90" />
-          <span className="text-[10px] font-mono text-slate-400 ml-2">iiSMM-Engine_v2.0_stable</span>
-        </div>
-        <div className="flex items-center gap-1">
-          <span className="w-1.5 h-1.5 rounded-full bg-sky-500 animate-pulse" />
-          <span className="text-[9px] font-mono text-sky-600 uppercase tracking-wider">Showroom-Live</span>
-        </div>
-      </div>
+
 
       {/* Active Stage Renderer */}
       <div className="flex-1 flex flex-col justify-center py-2">

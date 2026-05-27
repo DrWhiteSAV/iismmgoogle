@@ -13,6 +13,143 @@ import { PlatformNetworkCloud } from '../components/PlatformNetworkCloud';
 import { BetweenFeaturesDecoration } from '../components/BetweenFeaturesDecoration';
 import IntroLiveSimWidget from '../components/IntroLiveSimWidget';
 import FeaturesCarousel from '../components/FeaturesCarousel';
+import BlogPage from './BlogPage';
+import AIPage from './AIPage';
+
+// Reusable Multi-Gradient Tariff Cards layout with precise specs
+function TariffCards({ onAction }: { onAction: () => void }) {
+  const plans = [
+    {
+      name: "FREE ТАРИФ",
+      price: "0 ₽",
+      sub: "Тестовый старт",
+      badge: "Базовый",
+      features: [
+        "Репост - 3 канала бесплатно (+150₽ последующие)",
+        "Свои посты с цветными кнопками по расписанию - 3 канала бесплатно (+100₽ последующий канал)",
+        "Лимит 10 постов в день",
+        "Участие и организация в папках и подборках. 25% комиссия с платных папок и подборок",
+        "ИИрки для генерации постов и медиа. 1,000,000 ИИрок каждый месяц бесплатно (+250₽ за 5,000,000 ИИрок)",
+        "Участие в Бирже объявлений. 25% комиссия за безопасность и контроль условий",
+        "Оповещения в телеграм",
+        "Доступ к базовым курсам SMM Академии",
+        "Личные блоги на платформе - все посты автоматически доступны для показа на платформе",
+        "1,000,000 ИИрок по рефералке тебе и другу"
+      ],
+      isPopular: false
+    },
+    {
+      name: "PREMIUM ТАРИФ",
+      price: "490 ₽ / мес",
+      sub: "Рекомендуем для SMM",
+      badge: "Популярный",
+      features: [
+        "Лимит 50 постов в день",
+        "Автопостинг с ИИ, ИИ сам генерирует по расписанию",
+        "Аналитика канала",
+        "Холсты для медиа (Canva) и фирменный стиль постов",
+        "Управление кабинетом через телеграм бота",
+        "Публикация в ленте сообщества",
+        "Доступ к закрытым курсам SMM академии",
+        "Метка 💎 в имени участника в ленте и в личном блоге",
+        "Личные переписки в директ админам каналов",
+        "Подключение своих API ключей для агентов",
+        "Личные вотермарки на фото и видео"
+      ],
+      isPopular: true
+    },
+    {
+      name: "VIP СУПЕРВИЗОР",
+      price: "4,900 ₽ / мес",
+      sub: "Корпоративный холдинг",
+      badge: "Максимум",
+      features: [
+        "Лимит 500 постов в сутки",
+        "ИИ контент план для автопубликаций",
+        "ИИ аналитика канала в реальном времени с самообучением",
+        "Показ всех постов в блоге сайта",
+        "Голосовое и видео управление кабинетом",
+        "Доступ к академии через ИИ",
+        "Мультиплеер - Управление кабинетом несколькими участниками",
+        "Размещение лого с ссылкой на главном лендинге",
+        "Рассылки рекламы в директ админам каналов - 5р за сообщение",
+        "ИИ групповые чаты агентов - круглый стол ИИ-маркетологов",
+        "Доступ к MCP серверу агентов"
+      ],
+      isPopular: false
+    },
+    {
+      name: "ENTERPRISE",
+      price: "Индивидуально",
+      sub: "Полный аутсорсинг",
+      badge: "VIP Клиент",
+      features: [
+        "Создание брендбука, стиля, стратегии",
+        "Контент план от опытных SMM экспертов",
+        "Личное менторство ИИSMM экспертов",
+        "Ведение кабинета сотрудниками ИИSMM",
+        "Индивидуальные разработки с ИИ-инструментами: сайты, приложения, платформы, маркетплейсы, агенты, боты, срм"
+      ],
+      isPopular: false
+    }
+  ];
+
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto items-stretch px-4">
+      {plans.map((plan, idx) => (
+        <div 
+          key={idx} 
+          className={`apple-liquid-glass rounded-3xl p-6 border flex flex-col justify-between space-y-5 relative transition-all duration-300 hover:scale-102 ${
+            plan.isPopular 
+              ? 'border-pink-500/60 shadow-lg ring-1 ring-pink-400 bg-pink-50/10' 
+              : 'border-slate-200/60 shadow-sm bg-white/35'
+          }`}
+        >
+          {plan.isPopular && (
+            <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 bg-gradient-to-r from-orange-400 via-pink-500 to-sky-450 text-white text-[9px] font-black rounded-full uppercase tracking-widest shadow-sm">
+              ХИТ ПРОДАЖ 🔥
+            </div>
+          )}
+          <div className="space-y-4">
+            <div className="flex justify-between items-center bg-slate-100/30 p-2 rounded-xl border border-slate-200/10">
+              <span className={`px-2 py-0.5 rounded-full text-[8.5px] font-black uppercase tracking-wider ${
+                plan.isPopular ? 'bg-pink-100 text-pink-700' : 'bg-slate-100/80 text-slate-600'
+              }`}>
+                {plan.badge}
+              </span>
+              <span className="text-xs font-mono font-extrabold text-slate-800">{plan.price}</span>
+            </div>
+            
+            <div>
+              {/* Heading with requested multicolor gradient */}
+              <h3 className="text-[13px] font-black tracking-tight text-multicolor-gradient uppercase">
+                {plan.name}
+              </h3>
+              <p className="text-[10px] text-slate-500 font-medium mt-0.5">{plan.sub}</p>
+            </div>
+
+            <ul className="space-y-1.5 text-[10.5px] text-slate-600 font-semibold pt-2 border-t border-slate-200/55">
+              {plan.features.map((feat, fIdx) => (
+                <li key={fIdx} className="flex items-start gap-1.5 leading-normal">
+                  <span className="text-sky-500 shrink-0 select-none">✦</span>
+                  <span className="text-slate-700 font-medium">{feat}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Button with requested multicolor gradient */}
+          <button 
+            onClick={onAction} 
+            className="w-full py-3.5 bg-multicolor-gradient hover:opacity-95 text-white font-black text-[10.5px] uppercase rounded-xl tracking-wider shadow-md transition-all duration-200 hover:-translate-y-0.5 cursor-pointer active:translate-y-0"
+          >
+            Подключить {plan.name.split(' ')[0]} 🚀
+          </button>
+        </div>
+      ))}
+    </div>
+  );
+}
 
 interface LandingPageProps {
   onLogin: () => void;
@@ -22,19 +159,43 @@ interface LandingPageProps {
   onNavigate: (path: string) => void;
 }
 
+// Global helper to parse markdown bold syntax **bold text** into strong JSX elements
+export function renderWithBold(text: string): React.ReactNode {
+  if (!text) return '';
+  const regex = /\*\*(.*?)\*\*/g;
+  const parts = [];
+  let lastIndex = 0;
+  let match;
+
+  while ((match = regex.exec(text)) !== null) {
+    if (match.index > lastIndex) {
+      parts.push(text.substring(lastIndex, match.index));
+    }
+    parts.push(
+      <strong key={match.index} className="font-extrabold text-slate-900">
+        {match[1]}
+      </strong>
+    );
+    lastIndex = regex.lastIndex;
+  }
+
+  if (lastIndex < text.length) {
+    parts.push(text.substring(lastIndex));
+  }
+
+  return parts.length > 0 ? <>{parts}</> : text;
+}
+
 export default function LandingPage({ onLogin, user, onUpdateUser, currentPath, onNavigate }: LandingPageProps) {
-  const pathToTab = (path: string): 'abilities' | 'blog' | 'ai_assistants' | 'analytics' | 'advantages' | 'posts' | 'canvas' | 'reposter' | 'prices' | 'projects' | 'academy' | 'market_exchange' => {
+  const pathToTab = (path: string): 'abilities' | 'blog' | 'ai_assistants' | 'canvas' | 'prices' | 'projects' | 'academy' | 'market_exchange' => {
+    if (path.startsWith('/blog')) return 'blog';
     switch (path) {
       case '/main':
       case '/': return 'abilities';
       case '/blog': return 'blog';
       case '/ai': return 'ai_assistants';
       case '/market-exchange': return 'market_exchange';
-      case '/analytics': return 'analytics';
-      case '/advantages': return 'advantages';
-      case '/posts-info': return 'posts';
       case '/canvas': return 'canvas';
-      case '/reposter': return 'reposter';
       case '/prices': return 'prices';
       case '/projects': return 'projects';
       case '/academy': return 'academy';
@@ -48,11 +209,7 @@ export default function LandingPage({ onLogin, user, onUpdateUser, currentPath, 
       case 'blog': return '/blog';
       case 'ai_assistants': return '/ai';
       case 'market_exchange': return '/market-exchange';
-      case 'analytics': return '/analytics';
-      case 'advantages': return '/advantages';
-      case 'posts': return '/posts-info';
       case 'canvas': return '/canvas';
-      case 'reposter': return '/reposter';
       case 'prices': return '/prices';
       case 'projects': return '/projects';
       case 'academy': return '/academy';
@@ -62,7 +219,7 @@ export default function LandingPage({ onLogin, user, onUpdateUser, currentPath, 
 
   const activeTab = pathToTab(currentPath);
   
-  const setActiveTab = (tab: 'abilities' | 'blog' | 'ai_assistants' | 'analytics' | 'advantages' | 'posts' | 'canvas' | 'reposter' | 'prices' | 'projects' | 'academy' | 'market_exchange') => {
+  const setActiveTab = (tab: 'abilities' | 'blog' | 'ai_assistants' | 'canvas' | 'prices' | 'projects' | 'academy' | 'market_exchange') => {
     onNavigate(tabToPath(tab));
   };
 
@@ -72,6 +229,47 @@ export default function LandingPage({ onLogin, user, onUpdateUser, currentPath, 
   const [aiDemoInput, setAiDemoInput] = useState('Топ 3 нейросети для рекламы');
   const [aiDemoResult, setAiDemoResult] = useState('');
   const [aiGenerating, setAiGenerating] = useState(false);
+
+  // States for Reviews / Testimonials carousel
+  const [reviews, setReviews] = useState([
+    { name: "Александр (SMM Sages)", rating: 5, text: "Фантастический софт! Раньше на ведение 3 каналов уходило по 4 часа каждый день, сейчас ИИ сам за полчаса генерирует шикарные посты по расписанию. Вы сэкономили мне море личного времени!" },
+    { name: "Мария С.", rating: 5, text: "Очень крутая штука! Free тариф полностью функционален, ИИрки начисляются регулярно. Свои посты улетают в телеграмм пулей!" },
+    { name: "Семён Т. (@semen_smm)", rating: 5, text: "VIP супервизор — это просто бомба. Круглый стол ИИ-копирайтеров спорит между собой и находит гениальные идеи для креативов! Мультиплеер работает шикарно." },
+    { name: "Анна Ковалева", rating: 5, text: "Курсы в Академии безумно полезные, а метка 💎 в Ленте привлекает огромное количество новых лидов. Окупила подписку Premium за 3 дня!" },
+    { name: "Dmitry Dev", rating: 5, text: "Настроил автопостинг и подключил свой API ключ — полет идеальный. Рад, что нашел такой классный сервис. Однозначно 5 звезд!" }
+  ]);
+  const [activeReviewIdx, setActiveReviewIdx] = useState(0);
+
+  // Testimonial submission form modal states (No registration required)
+  const [showReviewModal, setShowReviewModal] = useState(false);
+  const [modalName, setModalName] = useState('');
+  const [modalText, setModalText] = useState('');
+  const [modalRating, setModalRating] = useState(5);
+  const [modalAvatar, setModalAvatar] = useState('👤');
+
+  const handleReviewSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!modalText.trim()) {
+      alert('Пожалуйста, напишите текст отзыва!');
+      return;
+    }
+    const safeName = modalName.trim() || 'Аноним';
+    const newRev = {
+      name: safeName,
+      rating: modalRating,
+      text: modalText
+    };
+    setReviews(prev => [...prev, newRev]);
+    alert('🎉 Спасибо! Ваш отзыв успешно отправлен и будет опубликован на платформе!');
+    // Clear and close
+    setModalName('');
+    setModalText('');
+    setModalRating(5);
+    setModalAvatar('👤');
+    setShowReviewModal(false);
+    // Focus on the newly added review
+    setActiveReviewIdx(reviews.length);
+  };
 
   // Interactive demo states for simulated marketplace on landing page
   const [simName, setSimName] = useState('Магия Нейросетей ✨');
@@ -197,19 +395,14 @@ export default function LandingPage({ onLogin, user, onUpdateUser, currentPath, 
     }
   };
 
-  // Nav labels matching the 12 informational pages
+  // Nav labels matching the 7 informational pages (compact)
   const tabs = [
     { key: 'abilities', label: 'Возможности', icon: <Radio className="w-3.5 h-3.5" /> },
     { key: 'blog', label: 'Наш Блог', icon: <BookOpen className="w-3.5 h-3.5" /> },
     { key: 'ai_assistants', label: 'AI Ассистенты', icon: <Sparkles className="w-3.5 h-3.5" /> },
-    { key: 'market_exchange', label: 'ИИ Биржа 🛡', icon: <ShoppingBag className="w-3.5 h-3.5" /> },
-    { key: 'analytics', label: 'Аналитика', icon: <BarChart3 className="w-3.5 h-3.5" /> },
-    { key: 'advantages', label: 'Преимущества', icon: <ShieldCheck className="w-3.5 h-3.5" /> },
-    { key: 'posts', label: 'Посты', icon: <FileText className="w-3.5 h-3.5" /> },
+    { key: 'market_exchange', label: 'ИИ Биржа 🛡', icon: <ShoppingBag className="w-3.5 h-3.5 text-rose-500" /> },
     { key: 'canvas', label: 'Холст 🎨', icon: <Brush className="w-3.5 h-3.5" /> },
-    { key: 'reposter', label: 'Репостер 🔄', icon: <Repeat className="w-3.5 h-3.5" /> },
     { key: 'prices', label: 'Тарифы', icon: <Trophy className="w-3.5 h-3.5" /> },
-    { key: 'projects', label: 'Проекты', icon: <Layers className="w-3.5 h-3.5" /> },
     { key: 'academy', label: 'Академия', icon: <GraduationCap className="w-3.5 h-3.5" /> },
   ] as const;
 
@@ -289,7 +482,7 @@ export default function LandingPage({ onLogin, user, onUpdateUser, currentPath, 
               <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 text-white fill-current shrink-0 animate-bounce">
                 <path d="M19.897 5.115l-17.1 6.59c-1.17.47-1.16 1.12-.22 1.41l4.39 1.37 10.16-6.41c.48-.29.92-.13.56.19l-8.24 7.44-.32 4.79c.47 0 .68-.21.94-.47l2.25-2.19 4.68 3.46c.86.48 1.48.23 1.69-.8l3.07-14.47c.31-1.26-.48-1.83-1.32-1.37z" />
               </svg>
-              Войти в Кабинет 👤
+              Войти 👤
             </button>
           </div>
 
@@ -422,13 +615,15 @@ export default function LandingPage({ onLogin, user, onUpdateUser, currentPath, 
                       <div className="flex flex-wrap gap-4 pt-4">
                         <button 
                           onClick={() => setShowTelegramModal(true)}
-                          className="px-6 py-3.5 btn-liquid-glass btn-glass-blue text-[11px] uppercase cursor-pointer"
+                          className="px-6 py-3.5 text-white font-black text-[11px] uppercase tracking-wide rounded-2xl shadow-xl hover:scale-103 hover:shadow-2xl transition-all border border-white/40 cursor-pointer"
+                          style={{ background: 'linear-gradient(90deg, #38bdf8 0%, #ec4899 25%, #f97316 50%, #ec4899 75%, #38bdf8 100%)' }}
                         >
                           Попробовать Бесплатно через TG 🚀
                         </button>
                         <button 
                           onClick={() => setActiveTab('prices')}
-                          className="px-6 py-3.5 btn-liquid-glass btn-glass-peach text-[11px] uppercase cursor-pointer"
+                          className="px-6 py-3.5 text-white font-black text-[11px] uppercase tracking-wide rounded-2xl shadow-xl hover:scale-103 hover:shadow-2xl transition-all border border-white/40 cursor-pointer"
+                          style={{ background: 'linear-gradient(90deg, #38bdf8 0%, #ec4899 25%, #f97316 50%, #ec4899 75%, #38bdf8 100%)' }}
                         >
                           Посмотреть тарифы 💎
                         </button>
@@ -452,131 +647,226 @@ export default function LandingPage({ onLogin, user, onUpdateUser, currentPath, 
                 </div>
 
                 <FeaturesCarousel />
+
+                {/* ADVANTAGES — ПРЕИМУЩЕСТВА СЕКЦИЯ */}
+                <div id="advantages-section" className="pt-20 space-y-8 max-w-7xl mx-auto px-4">
+                  <div className="text-center max-w-xl mx-auto space-y-3">
+                    <span className="px-3 py-1 bg-sky-100 text-sky-850 rounded-full text-[10px] font-black uppercase tracking-widest border border-sky-200">БЕЗУПРЕЧНОЕ КАЧЕСТВО</span>
+                    <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-gradient-header uppercase">Преимущества работы с ИИSMM</h2>
+                    <p className="text-slate-500 text-xs sm:text-xs">Наши ключевые ценности и инновационные преимущества, которые выводят ваш бизнес в топ.</p>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 pt-4">
+                    {[
+                      {
+                        title: "Работа без VPN и Лимитов 🌐",
+                        desc: "Прямой доступ ко всем ИИ-генераторам и API со скоростью света. Не нужно регистрировать зарубежные аккаунты или держать включенным прокси.",
+                        iconColor: "from-sky-450 to-blue-500",
+                        accentBg: "bg-sky-50/50"
+                      },
+                      {
+                        title: "Многозадачные AI-Ассистенты 🤖",
+                        desc: "20+ специализированных ИИ-агентов. Они знают формулу AIDA, умеют шутить, пишут яркие прогревы, сценарии и анализируют тренды.",
+                        iconColor: "from-pink-500 to-rose-500",
+                        accentBg: "bg-pink-50/40"
+                      },
+                      {
+                        title: "Безопасная Сделка Escrow 🛡",
+                        desc: "Наша биржа рекламы полностью защищает средства рекламодателей и блогеров. Выплата происходит только после автоматической проверки публикации.",
+                        iconColor: "from-orange-400 to-amber-500",
+                        accentBg: "bg-orange-50/50"
+                      },
+                      {
+                        title: "ИИ Автопланирование 📡",
+                        desc: "Умное авторасписание самостоятельно определяет время публикации для получения пикового охвата. Вы отдыхаете — автоматика работает за вас.",
+                        iconColor: "from-purple-500 to-indigo-600",
+                        accentBg: "bg-purple-50/40"
+                      }
+                    ].map((adv, aIdx) => (
+                      <div key={aIdx} className={`p-6 rounded-3xl border border-white/50 backdrop-blur-md shadow-xxs ${adv.accentBg} flex flex-col justify-start space-y-3 transition-all duration-300 hover:scale-[1.02] hover:shadow-xs`}>
+                        <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${adv.iconColor} p-0.5 flex items-center justify-center text-white text-lg font-bold shadow-sm`}>
+                          ✦
+                        </div>
+                        <h4 className="font-extrabold text-slate-800 text-xs sm:text-xs leading-snug">{adv.title}</h4>
+                        <p className="text-slate-500 text-[10.5px] leading-relaxed font-medium">{adv.desc}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* TARIFFS SECTION ON MAIN PAGE */}
+                <div id="main-tariffs-section" className="pt-24 space-y-8 max-w-7xl mx-auto">
+                  <div className="text-center max-w-xl mx-auto space-y-3 px-4">
+                    <span className="px-3 py-1 bg-gradient-to-r from-orange-400 to-pink-500 text-white rounded-full text-[9px] font-black uppercase tracking-widest font-mono">ГИБКИЙ ВЫБОР</span>
+                    {/* Headings with multicolor gradient */}
+                    <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-multicolor-gradient uppercase">Наши тарифные планы</h2>
+                    <p className="text-slate-500 text-xs">Выберите подходящий уровень мощности. Переключайте тарифы в личном кабинете в любое время.</p>
+                  </div>
+
+                  <TariffCards onAction={() => setShowTelegramModal(true)} />
+                </div>
+
+                {/* REVIEWS TESTIMONIAL CAROUSEL */}
+                <div id="reviews-carousel-section" className="pt-24 pb-12 max-w-4xl mx-auto px-4 space-y-8">
+                  <div className="text-center max-w-md mx-auto space-y-3">
+                    <span className="px-3 py-1 bg-pink-100 text-pink-850 rounded-full text-[10px] font-black uppercase tracking-widest border border-pink-200">ОТЗЫВЫ КЛИЕНТОВ</span>
+                    {/* Headings with multicolor gradient */}
+                    <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-multicolor-gradient uppercase">Что говорят SMM эксперты</h2>
+                    <p className="text-slate-500 text-xs">Мнения профессиональных блогеров, маркетологов и авторов каналов о платформе ИИSMM.</p>
+                  </div>
+
+                  {/* Active carousel card */}
+                  <div className="apple-liquid-glass p-8 rounded-3xl border border-slate-200/50 shadow-md relative overflow-hidden flex flex-col md:flex-row items-center gap-6">
+                    <div className="w-16 h-16 rounded-full bg-gradient-to-tr from-sky-400 via-pink-500 to-orange-400 p-0.5 shrink-0 flex items-center justify-center text-white text-3xl font-bold shadow-md animate-float">
+                      💬
+                    </div>
+                    <div className="space-y-3 flex-1 text-center md:text-left">
+                      <div className="flex justify-center md:justify-start gap-1">
+                        {Array.from({ length: reviews[activeReviewIdx].rating }).map((_, rIdx) => (
+                          <Star key={rIdx} className="w-4 h-4 text-orange-400 fill-orange-400 shrink-0" />
+                        ))}
+                      </div>
+                      <p className="text-slate-700 font-medium text-xs sm:text-xs leading-relaxed italic">
+                        "{reviews[activeReviewIdx].text}"
+                      </p>
+                      <h4 className="font-black text-slate-800 text-xs sm:text-xs tracking-tight uppercase">
+                        {reviews[activeReviewIdx].name}
+                      </h4>
+                    </div>
+                  </div>
+
+                  {/* Carousel Controls */}
+                  <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white/40 border border-slate-200/20 px-6 py-4 rounded-3xl">
+                    <div className="flex gap-1.5 justify-center">
+                      {reviews.map((_, dotIdx) => (
+                        <button 
+                          key={dotIdx} 
+                          onClick={() => setActiveReviewIdx(dotIdx)}
+                          className={`w-2.5 h-2.5 rounded-full transition-all duration-300 border border-slate-300/40 cursor-pointer ${
+                            dotIdx === activeReviewIdx ? 'bg-pink-500 w-6' : 'bg-slate-300 hover:bg-slate-400'
+                          }`}
+                        />
+                      ))}
+                    </div>
+
+                    {/* Button with multicolor gradient */}
+                    <button 
+                      onClick={() => setShowReviewModal(true)}
+                      className="px-5 py-2.5 bg-multicolor-gradient hover:opacity-95 text-white text-[10.5px] uppercase font-black tracking-wider rounded-xl shadow-md border border-white/20 hover:-translate-y-0.5 active:translate-y-0 transition-all cursor-pointer"
+                    >
+                      Оставить отзыв ✍️
+                    </button>
+                  </div>
+                </div>
+
+                {/* POPUP MODAL FOR LEAVING REVIEWS (Anonymous & No register needed) */}
+                <AnimatePresence>
+                  {showReviewModal && (
+                    <div className="fixed inset-0 z-55 flex items-center justify-center bg-slate-950/40 backdrop-blur-sm p-4">
+                      <motion.div 
+                        initial={{ opacity: 0, scale: 0.96 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.96 }}
+                        className="apple-liquid-glass-heavy max-w-md w-full rounded-2xl p-6 border border-white/60 shadow-2xl relative space-y-4"
+                      >
+                        <button 
+                          onClick={() => setShowReviewModal(false)}
+                          className="absolute right-4 top-4 w-7 h-7 bg-slate-100 hover:bg-slate-200 rounded-full flex items-center justify-center text-slate-500 font-bold transition-all border border-slate-200/50 cursor-pointer text-xs"
+                        >
+                          ✕
+                        </button>
+
+                        <div className="space-y-1.5">
+                          {/* Heading with requested multicolor gradient */}
+                          <h3 className="text-sm font-black text-multicolor-gradient uppercase tracking-tight">Оставить отзыв без регистрации</h3>
+                          <p className="text-slate-500 text-[10.5px] font-medium leading-relaxed">Поделитесь вашим мнением о платформе ИИSMM. Ваше имя и текст будут видны моментально без какой-либо авторизации.</p>
+                        </div>
+
+                        <form onSubmit={handleReviewSubmit} className="space-y-3 pt-1">
+                          <div className="space-y-1">
+                            <label className="text-[10px] font-black text-slate-600 uppercase tracking-wider">Имя / Никнейм в Telegram:</label>
+                            <input 
+                              type="text"
+                              value={modalName}
+                              onChange={(e) => setModalName(e.target.value)}
+                              placeholder="Например: Александр (@alex_smm)"
+                              className="w-full text-xs p-3 bg-white/75 border border-slate-200/80 rounded-xl focus:ring-1 focus:ring-pink-500 focus:outline-none focus:border-pink-500/80 shadow-xxs font-medium"
+                              required
+                            />
+                          </div>
+
+                          <div className="grid grid-cols-2 gap-3">
+                            <div className="space-y-1">
+                              <label className="text-[10px] font-black text-slate-600 uppercase tracking-wider block">Оценка (Звезды):</label>
+                              <select 
+                                value={modalRating} 
+                                onChange={(e) => setModalRating(Number(e.target.value))}
+                                className="w-full text-xs p-3 bg-white/75 border border-slate-200/80 rounded-xl focus:ring-1 focus:ring-pink-500 focus:outline-none font-bold text-orange-500 cursor-pointer shadow-xxs"
+                              >
+                                <option value="5" className="text-orange-500">⭐️⭐️⭐️⭐️⭐️ (5/5)</option>
+                                <option value="4" className="text-orange-500">⭐️⭐️⭐️⭐️ (4/5)</option>
+                                <option value="3" className="text-orange-500">⭐️⭐️⭐️ (3/5)</option>
+                                <option value="2" className="text-orange-500">⭐️⭐️ (2/5)</option>
+                                <option value="1" className="text-orange-500">⭐️ (1/5)</option>
+                              </select>
+                            </div>
+
+                            <div className="space-y-1">
+                              <label className="text-[10px] font-black text-slate-600 uppercase tracking-wider block">Аватар Эмодзи:</label>
+                              <select 
+                                value={modalAvatar} 
+                                onChange={(e) => setModalAvatar(e.target.value)}
+                                className="w-full text-xs p-3 bg-white/75 border border-slate-200/80 rounded-xl focus:ring-1 focus:ring-pink-500 focus:outline-none font-bold text-slate-700 cursor-pointer shadow-xxs"
+                              >
+                                <option value="👤">👤 Эксперт</option>
+                                <option value="🤖">🤖 ИИ Агент</option>
+                                <option value="💼">💼 Бизнесмен</option>
+                                <option value="🚀">🚀 Маркетолог</option>
+                                <option value="✨">✨ Блогер</option>
+                              </select>
+                            </div>
+                          </div>
+
+                          <div className="space-y-1">
+                            <label className="text-[10px] font-black text-slate-600 uppercase tracking-wider">Текст вашего отзыва:</label>
+                            <textarea 
+                              rows={3}
+                              value={modalText}
+                              onChange={(e) => setModalText(e.target.value)}
+                              placeholder="Пожалуйста, расскажите об опыте запуска постов, работы с ИИ-агентами или биржей сделок..."
+                              className="w-full text-xs p-3 bg-white/75 border border-slate-200/80 rounded-xl focus:ring-1 focus:ring-pink-500 focus:outline-none focus:border-pink-500/80 shadow-xxs font-medium"
+                              maxLength={350}
+                              required
+                            />
+                          </div>
+
+                          <button 
+                            type="submit"
+                            className="w-full py-3 bg-multicolor-gradient hover:opacity-95 text-white font-black text-[11px] uppercase rounded-xl tracking-wider shadow-md transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 cursor-pointer"
+                          >
+                            Опубликовать отзыв 🚀
+                          </button>
+                        </form>
+                      </motion.div>
+                    </div>
+                  )}
+                </AnimatePresence>
             </>
           )}
 
           {/* INFORMATIVE SECTION 2: НАШ БЛОГ */}
             {activeTab === 'blog' && (
-              <div className="space-y-6 py-4">
-                <div className="text-center max-w-xl mx-auto space-y-2">
-                  <span className="px-3 py-1 bg-orange-100 text-orange-800 rounded-full text-[10px] font-black uppercase border border-orange-200">НОВОСТИ И ЛАЙФХАКИ</span>
-                  <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-gradient-header">Блог о развития SMM и нейросетях в 2026</h2>
-                  <p className="text-slate-500 text-xs">Практические инструкции, новости нашей платформы и стратегии повышения охватов.</p>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  {[
-                    {
-                      title: 'Как получить 1,000,000 ИИрок в подарок и грамотно их использовать?',
-                      desc: 'ИИрки — официальная внутренняя валюта нашего сервиса. 5,000,000 ИИрок стоят всего 250 рублей. Мы дарим стартовый миллион при входе через Telegram в 1 клик!',
-                      tag: 'Валюта',
-                      img: 'https://images.unsplash.com/photo-1621416894569-0f39ed31d247?w=400&q=80'
-                    },
-                    {
-                      title: 'Секреты парсинга Telegram-каналов и кросспостинг без ручного труда',
-                      desc: 'Интерфейсы репостеров позволяют забирать новости, производить автоматический ИИ-рерайт и постить в TenChat, VK и Сетку за одну секунду.',
-                      tag: 'Кросспостинг',
-                      img: 'https://images.unsplash.com/photo-1557200134-90327ee9fafa?w=400&q=80'
-                    },
-                    {
-                      title: 'Правило сбора Взаимного Пиара (ВП): экономим 90% рекламного бюджета',
-                      desc: 'Сборы в общие папки позволяют каналам обмениваться аудиторией. Наш модуль сбора является бесплатным для организаторов.',
-                      tag: 'Продвижение',
-                      img: 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=400&q=80'
-                    }
-                  ].map((art, idx) => (
-                    <div key={idx} className="bg-white/70 backdrop-blur rounded-2xl border border-white/60 overflow-hidden shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
-                      <div>
-                        <img src={art.img} alt={art.title} className="w-full h-36 object-cover" referrerPolicy="no-referrer" />
-                        <div className="p-5 space-y-2">
-                          <span className="px-2 py-0.5 bg-orange-50 text-orange-870 rounded-full text-[9px] font-black uppercase font-mono">{art.tag}</span>
-                          <h3 className="font-extrabold text-sm text-slate-800 leading-snug">{art.title}</h3>
-                          <p className="text-[11px] text-slate-500 leading-relaxed font-medium">{art.desc}</p>
-                        </div>
-                      </div>
-                      <div className="p-5 pt-0">
-                        <button 
-                          onClick={() => setShowTelegramModal(true)}
-                          className="w-full py-2 bg-slate-900/5 hover:bg-slate-900/10 text-slate-800 text-[10px] font-bold rounded-xl flex items-center justify-center gap-1 transition-colors uppercase"
-                        >
-                          Регистрация для чтения ⚙️ <ChevronRight className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
+              <BlogPage 
+                currentPath={currentPath}
+                onNavigate={onNavigate}
+                onLogin={onLogin}
+                isLoggedIn={false}
+              />
             )}
 
             {/* INFORMATIVE SECTION 3: AI АССИСТЕНТЫ */}
             {activeTab === 'ai_assistants' && (
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center py-4">
-                <div className="lg:col-span-7 space-y-5">
-                  <span className="px-3 py-1 bg-pink-100 text-pink-800 rounded-full text-[10px] font-black uppercase border border-pink-200">ИИ КОНТЕНТ МЕНЕДЖЕРЫ</span>
-                  <h2 className="text-3xl font-extrabold tracking-tight leading-tight text-gradient-header">
-                    Профессиональные нейросети создают контент за вас
-                  </h2>
-                  <p className="text-slate-600 text-sm leading-relaxed">
-                    Забудьте про творческий кризис. В ИИSMM мы встроили мощные модели, соединенные с интеллектуальным поиском трендов (Grounding) и рерайтером по образцу. Укажите тему поста или ссылку на канал, и система перепишет её в заданном стиле, вставит абзацы, выделит ключевые фразы и подготовит UTM разметку.
-                  </p>
-                  
-                  {/* Simulated playground */}
-                  <div className="p-5 bg-white/70 backdrop-blur rounded-2xl border border-white/40 space-y-3.5">
-                    <label className="text-[10px] font-bold text-slate-400 block uppercase block leading-none">Протестируйте AI-копирайтер прямо на лендинге:</label>
-                    <div className="flex gap-2">
-                      <input 
-                        type="text" 
-                        value={aiDemoInput} 
-                        onChange={e => setAiDemoInput(e.target.value)}
-                        placeholder="Введите тему поста..." 
-                        className="flex-1 px-3 py-2 bg-white rounded-xl border border-slate-200 text-xs focus:ring-1 focus:ring-pink-500 focus:outline-none"
-                      />
-                      <button 
-                        onClick={handleRunAiDemo}
-                        disabled={aiGenerating}
-                        className="px-4 py-2 bg-pink-500 hover:bg-pink-600 text-white font-black text-xs rounded-xl shadow cursor-pointer transition-all flex items-center gap-1.5 uppercase shrink-0"
-                      >
-                        {aiGenerating ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
-                        <span>Пост с ИИ ⚡</span>
-                      </button>
-                    </div>
-
-                    <AnimatePresence mode="wait">
-                      {aiDemoResult && (
-                        <motion.div 
-                          initial={{ opacity: 0 }} 
-                          animate={{ opacity: 1 }} 
-                          className="bg-slate-900/5 p-3 rounded-xl border border-slate-200/40 text-xs text-slate-700 font-mono whitespace-pre-wrap leading-relaxed"
-                        >
-                          {aiDemoResult}
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </div>
-                </div>
-
-                <div className="lg:col-span-5 bg-gradient-to-tr from-sky-400/20 via-orange-300/20 to-pink-500/20 rounded-3xl p-8 border border-white/50 shadow-sm space-y-4">
-                  <h4 className="font-extrabold text-sm text-slate-800 uppercase tracking-wide">Доступные роли ассистентов:</h4>
-                  {[
-                    { role: '🤖 ИИ Копирайтер длинных статей', desc: 'Умеет составлять лонгриды, подкрепленные аналитикой' },
-                    { role: '⚡ Быстрый рерайтер постов', desc: 'Трансформирует посты конкурентов, убирая рекламу' },
-                    { role: '🪙 ИИ SEO оптимизатор', desc: 'Автоматически генерирует адаптивные теги для Дзена и VK' }
-                  ].map((r, i) => (
-                    <div key={i} className="p-3.5 bg-white/80 rounded-2xl border border-white space-y-1">
-                      <span className="font-bold text-xs text-pink-600 block">{r.role}</span>
-                      <p className="text-[11px] text-slate-500 font-medium">{r.desc}</p>
-                    </div>
-                  ))}
-                  <div className="pt-2 text-center">
-                    <button 
-                      onClick={() => setShowTelegramModal(true)}
-                      className="px-5 py-2.5 bg-gradient-to-r from-orange-400 via-pink-500 to-sky-450 text-white text-[10px] font-black rounded-lg uppercase tracking-wider shadow-md hover:opacity-95 active:scale-98 border border-white/20 transition-all"
-                    >
-                      Подключить AI ассистента бесплатно 🚀
-                    </button>
-                  </div>
-                </div>
-              </div>
+              <AIPage />
             )}
 
             {/* INFORMATIVE SECTION: ИИ БИРЖА (MARKET EXCHANGE) */}
@@ -590,7 +880,7 @@ export default function LandingPage({ onLogin, user, onUpdateUser, currentPath, 
                     Монетизируйте свои каналы или закупайте интеграции в 1 клик
                   </h2>
                   <p className="text-slate-500 text-xs">
-                    Автоматизированная биржа с эскроу-гарантом @iiSmmBot: бот сам находит посты на площадках, проверяет удержание в топе 24/48 часов и мгновенно выплачивает деньги.
+                    Автоматизированная биржа с эскроу-гарантом <a href="https://t.me/iismmAIbot" target="_blank" rel="noopener noreferrer" className="text-pink-600 hover:text-pink-700 underline font-semibold">@iismmAIbot</a>: бот сам находит посты на площадках, проверяет удержание в топе 24/48 часов и мгновенно выплачивает деньги.
                   </p>
                 </div>
 
@@ -612,7 +902,9 @@ export default function LandingPage({ onLogin, user, onUpdateUser, currentPath, 
                   </div>
                   <div className="apple-liquid-glass rounded-2xl p-5 bg-white/40 space-y-3 shadow-xl hover:scale-102 transition-all duration-300">
                     <span className="text-xl">🤖</span>
-                    <h4 className="font-extrabold text-slate-800 text-sm">Авто-контроль @iiSmmBot</h4>
+                    <h4 className="font-extrabold text-slate-800 text-sm">
+                      Авто-контроль <a href="https://t.me/iismmAIbot" target="_blank" rel="noopener noreferrer" className="text-pink-600 hover:text-pink-700 underline">@iismmAIbot</a>
+                    </h4>
                     <p className="text-xs text-slate-600 leading-relaxed">
                       Никакого ручного контроля! ИИ-аудитор проверяет ссылку в закрепе, статистику кликов и защищает ваши рекламные вложения 24/7.
                     </p>
@@ -640,40 +932,40 @@ export default function LandingPage({ onLogin, user, onUpdateUser, currentPath, 
                       className="space-y-3 text-xs"
                     >
                       <div className="space-y-1">
-                        <label className="block text-slate-600 font-bold uppercase text-[9px]">Название вашего рекламного канала</label>
+                        <label className="block text-slate-600 font-bold uppercase text-[9px]">Название рекламного канала:</label>
                         <input
                           type="text"
                           value={simName}
                           onChange={(e) => setSimName(e.target.value)}
-                          className="w-full bg-white border border-slate-200 p-2.5 rounded-xl"
+                          className="w-full bg-white/80 border border-slate-200/80 p-2.5 rounded-xl text-xs"
                         />
                       </div>
                       <div className="grid grid-cols-2 gap-2">
                         <div className="space-y-1">
-                          <label className="block text-slate-600 font-bold uppercase text-[9px]">Цена за пост (₽)</label>
+                          <label className="block text-slate-600 font-bold uppercase text-[9px]">Цена за пост (₽):</label>
                           <input
                             type="number"
                             value={simPrice}
                             onChange={(e) => setSimPrice(e.target.value)}
-                            className="w-full bg-white border border-slate-200 p-2.5 rounded-xl"
+                            className="w-full bg-white/80 border border-slate-200/80 p-2.5 rounded-xl text-xs"
                           />
                         </div>
                         <div className="space-y-1">
-                          <label className="block text-slate-600 font-bold uppercase text-[9px]">Средний охват</label>
+                          <label className="block text-slate-600 font-bold uppercase text-[9px]">Средний охват:</label>
                           <input
                             type="number"
                             value={simViews}
-                            onChange={(e) => setSimViews(e.target.value)}
-                            className="w-full bg-white border border-slate-200 p-2.5 rounded-xl"
+                            onChange={(e) => setSimViews(Number(e.target.value))}
+                            className="w-full bg-white/80 border border-slate-200/80 p-2.5 rounded-xl text-xs"
                           />
                         </div>
                       </div>
 
                       <button
                         type="submit"
-                        className="w-full py-2.5 bg-gradient-to-r from-orange-400 to-pink-500 hover:from-orange-500 hover:to-pink-600 text-white font-bold rounded-xl shadow cursor-pointer text-center text-xs transition-colors"
+                        className="w-full py-2.5 bg-gradient-to-r from-orange-400 to-pink-500 hover:from-orange-500 hover:to-pink-600 text-white font-black text-[10px] rounded-xl uppercase shadow-xs cursor-pointer flex items-center justify-center gap-1 transition-all"
                       >
-                        Подать объявление на Биржу 🚀
+                        Подать объявление 🚀
                       </button>
                     </form>
 
@@ -682,20 +974,21 @@ export default function LandingPage({ onLogin, user, onUpdateUser, currentPath, 
                         <motion.div
                           initial={{ opacity: 0, y: 10 }}
                           animate={{ opacity: 1, y: 0 }}
-                          className="p-3.5 bg-orange-50 rounded-xl border border-orange-200 text-xs text-orange-900 space-y-1"
+                          exit={{ opacity: 0, y: 10 }}
+                          className="p-3 bg-orange-50/80 rounded-xl border border-orange-200/50 text-xs text-orange-950 space-y-1"
                         >
                           <p className="font-bold flex items-center gap-1">
-                            <span className="text-base">🎉</span> Объявление успешно выставлено на Биржу!
+                            <span>🎉</span> Канал добавлен на Биржу!
                           </p>
-                          <p className="text-[10px] text-slate-500">
-                            Ваша площадка "{simName}" попала в каталог. Теперь рекламодатели смогут заказывать у вас авторазмещение по безопасной сделке!
+                          <p className="text-[10px] text-slate-550 leading-snug">
+                            Канал {"\"" + simName + "\""} успешно добавлен в каталог предложений платформы.
                           </p>
                           <button
                             type="button"
                             onClick={() => setSimSubmitted(false)}
                             className="text-[10px] text-pink-600 font-bold underline cursor-pointer"
                           >
-                            Подать заново
+                            Изменить данные
                           </button>
                         </motion.div>
                       )}
@@ -732,7 +1025,7 @@ export default function LandingPage({ onLogin, user, onUpdateUser, currentPath, 
                           onClick={() => {
                             setSimEarning(prev => prev + 450);
                           }}
-                          className="w-full py-2 bg-gradient-to-r from-orange-400 to-pink-500 hover:from-orange-500 hover:to-pink-600 text-white font-bold text-xs rounded-xl shadow-xs cursor-pointer flex items-center justify-center gap-1 transition-all"
+                          className="w-full py-2.5 bg-gradient-to-r from-orange-400 to-pink-500 hover:scale-101 text-white font-black text-[10px] rounded-xl uppercase shadow-xs cursor-pointer flex items-center justify-center gap-1 transition-all"
                         >
                           <span>Откликнуться и Разместить пост</span>
                         </button>
@@ -748,371 +1041,20 @@ export default function LandingPage({ onLogin, user, onUpdateUser, currentPath, 
               </div>
             )}
 
-            {/* INFORMATIVE SECTION 4: АНАЛИТИКА */}
-            {activeTab === 'analytics' && (
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center py-4">
-                <div className="lg:col-span-6 space-y-5">
-                  <span className="px-3 py-1 bg-orange-100 text-orange-900 rounded-full text-[10px] font-black uppercase border border-orange-200/60">МАРКЕТИНГОВЫЙ СЧЕТЧИК</span>
-                  <h2 className="text-3xl font-extrabold tracking-tight text-gradient-header">Прозрачный трекинг охватов и конверсий по UTM меткам</h2>
-                  <p className="text-slate-650 text-sm leading-relaxed">
-                    Планировщик автоматически маркирует каждую исходящую внешнюю ссылку в ваших рекламных кампаниях. Вы сможете отслеживать чистые переходы, клики по кнопкам, рост аудитории и статистику в интуитивно понятных графиках личного кабинета.
-                  </p>
-                  <div className="bg-white/60 backdrop-blur rounded-2xl border border-white p-4 space-y-3 font-semibold text-xs">
-                    <div className="flex justify-between border-b pb-2 text-orange-850">
-                      <span>Источник</span>
-                      <span>Просмотры</span>
-                      <span>Конверсия</span>
-                    </div>
-                    <div className="flex justify-between font-mono">
-                      <span>🌐 tg_folder_promo</span>
-                      <span className="font-bold text-slate-800">12,400</span>
-                      <span className="text-pink-650 font-extrabold">14.2%</span>
-                    </div>
-                    <div className="flex justify-between font-mono">
-                      <span>🔗 vk_cross_post</span>
-                      <span className="font-bold text-slate-800">4,900</span>
-                      <span className="text-pink-650 font-extrabold">8.1%</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="lg:col-span-6 bg-white/70 backdrop-blur-xl border border-white/50 rounded-3xl p-6 shadow-lg space-y-4">
-                  <h3 className="font-extrabold text-sm text-slate-800 uppercase tracking-widest border-b pb-2">Премиум графический модуль (Скриншот-Демо)</h3>
-                  
-                  {/* Curvy illustrative graph */}
-                  <div className="h-40 w-full relative pt-4">
-                    <svg className="w-full h-full overflow-visible">
-                      <path d="M 0 100 Q 100 20 200 80 T 400 30" fill="none" stroke="#f97316" strokeWidth="4" />
-                      <circle cx="200" cy="80" r="6" fill="#f43f5e" />
-                      <circle cx="400" cy="30" r="6" fill="#ec4899" />
-                    </svg>
-                  </div>
-                  <div className="flex justify-between text-[11px] text-slate-400 font-bold font-mono">
-                    <span>Пн</span>
-                    <span>Ср</span>
-                    <span>Пт</span>
-                    <span>Вс (96,000 охвата)</span>
-                  </div>
-                  <p className="text-[11px] text-slate-400 text-center">Графика адаптирована в лаконичном стиле Apple Liquid Glass</p>
-                </div>
-              </div>
-            )}
-
-            {/* INFORMATIVE SECTION 5: ПРЕИМУЩЕСТВА */}
-            {activeTab === 'advantages' && (
-              <div className="space-y-6 py-4">
-                <div className="text-center max-w-xl mx-auto space-y-2">
-                  <span className="px-3 py-1 bg-amber-100 text-amber-800 rounded-full text-[10px] font-black uppercase border border-amber-200">БЕЗОПАСНОСТЬ И УНИВЕРСАЛЬНОСТЬ</span>
-                  <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-gradient-header">Почему SMM-специалисты выбирают ИИSMM?</h2>
-                  <p className="text-slate-500 text-xs">Четыре столпа надежности, выделяющие нас на фоне отечественных аналогов.</p>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                  {[
-                    { title: '🔒 Без ввода паролей', desc: 'Авторизация и привязка каналов происходят через защищенный API-шлюз бота @iismmAIbot.', icon: <ShieldCheck className="w-6 h-6 text-orange-500" />, bg: 'bg-orange-50 border-orange-200/50' },
-                    { title: '🎨 Встроенный холст дизайна', desc: 'Создавайте обложки и защищайте креативы своими логотипами и водяными знаками без фотошопа.', icon: <Brush className="w-6 h-6 text-orange-400" />, bg: 'bg-orange-50 border-orange-200/50' },
-                    { title: '🪙 Расчёт в ИИрках', desc: 'Ультра-дешевая валюта: 5,000,000 ИИрок стоят всего 250 рублей. Заменяет любые ежемесячные лимиты.', icon: <Sparkles className="w-6 h-6 text-pink-400" />, bg: 'bg-pink-50 border-pink-200/50' },
-                    { title: '📁 Взаимное продвижение', desc: 'Встроенные рекламные сборы во взаимные промо-папки (полностью бесплатные для организаторов).', icon: <Users className="w-6 h-6 text-pink-550" />, bg: 'bg-pink-50 border-pink-200/50' }
-                  ].map((card, idx) => (
-                    <div key={idx} className="apple-liquid-glass rounded-2xl p-5 space-y-3.5 hover:scale-103 duration-300 shadow-xl bg-white/45 flex flex-col justify-between">
-                      <div>
-                        <div className={`p-2 w-10 h-10 rounded-xl flex items-center justify-center border shadow-inner ${card.bg}`}>{card.icon}</div>
-                        <h3 className="font-extrabold text-sm text-slate-800 leading-snug mt-3">{card.title}</h3>
-                      </div>
-                      <p className="text-[11px] text-slate-600 leading-relaxed font-semibold">{card.desc}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* INFORMATIVE SECTION 6: ПОСТЫ */}
-            {activeTab === 'posts' && (
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center py-4">
-                <div className="lg:col-span-7 space-y-5">
-                  <span className="px-3 py-1 bg-orange-100 text-orange-900 rounded-full text-[10px] font-black uppercase border border-orange-200">КАЛЕНДАРЬ ПОСТОВ</span>
-                  <h2 className="text-3xl font-extrabold tracking-tight leading-tight text-gradient-header">Мультипостинг и умный редактор отложенных постов</h2>
-                  <p className="text-slate-600 text-sm leading-relaxed">
-                    Планируйте публикации на недели вперед с помощью удобной сетки автопубликации. Сервис позволяет добавлять ссылки, изображения с водяными знаками, кнопки и настраивать кросс-репосты в назначенное время для всех каналов.
-                  </p>
-                  <div className="flex flex-wrap gap-2.5">
-                    {['Telegram', 'VKонтакте', 'OK', 'TenChat', 'Дзен', 'Сетка'].map((plat) => (
-                      <span key={plat} className="px-2.5 py-1 bg-white/70 backdrop-blur border border-slate-200 font-mono text-[10px] font-bold rounded-lg text-slate-600 shadow-sm">• {plat}</span>
-                    ))}
-                  </div>
-                  <div className="pt-2">
-                    <button 
-                      onClick={() => setShowTelegramModal(true)}
-                      className="px-6 py-3 bg-gradient-to-r from-orange-400 to-pink-500 hover:from-orange-500 hover:to-pink-600 text-white font-black text-xs rounded-xl shadow-lg shadow-orange-500/20 uppercase cursor-pointer"
-                    >
-                      Зарегистрироваться и составить пост 🚀
-                    </button>
-                  </div>
-                </div>
-
-                <div className="lg:col-span-5 bg-white/70 backdrop-blur border border-white/50 rounded-3xl p-6 shadow-sm space-y-3.5">
-                  <h4 className="font-extrabold text-xs text-slate-800 uppercase tracking-wider">Макет Календаря (Информационный):</h4>
-                  <div className="grid grid-cols-3 gap-2.5 text-center font-mono text-[9px]">
-                    <div className="p-2 border rounded-xl bg-orange-50/50">
-                      <span className="block font-bold">ПН 12:00</span>
-                      <span className="text-orange-600 font-extrabold">🚀 Пост 1</span>
-                    </div>
-                    <div className="p-2 border rounded-xl bg-pink-50/50">
-                      <span className="block font-bold">СР 15:00</span>
-                      <span className="text-pink-600 font-extrabold">📝 Пост 2</span>
-                    </div>
-                    <div className="p-2 border rounded-xl bg-orange-50/30">
-                      <span className="block font-bold">ПТ 18:00</span>
-                      <span className="text-slate-400 font-semibold">[Пусто]</span>
-                    </div>
-                  </div>
-                  <p className="text-[10px] text-slate-400 text-center leading-relaxed">Интерактивный календарь с поддержкой перетаскивания и ИИ-генерацией постов ждет вас в личном кабинете!</p>
-                </div>
-              </div>
-            )}
-
-            {/* INFORMATIVE SECTION 7: ХОЛСТ 🎨 */}
-            {activeTab === 'canvas' && (
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center py-4">
-                <div className="lg:col-span-7 space-y-5">
-                  <span className="px-3 py-1 bg-orange-100 text-orange-900 rounded-full text-[10px] font-black uppercase border border-orange-200/60">ДИЗАЙН ИНСТРУМЕНТ (ХОЛСТ)</span>
-                  <h2 className="text-3xl font-extrabold tracking-tight leading-tight text-gradient-header">Холст: Редактируйте дизайн обложек прямо внутри ИИSMM</h2>
-                  <p className="text-slate-600 text-sm leading-relaxed">
-                    Аналог Canva, созданный специально для SMM-копирайтеров. Задайте пастельную основу (небесно-голубой, оранжево-персиковый, пудрово-розовый), напишите кричащий заголовок, нанесите водяные знаки для предотвращения копирования и вставьте водяной знак канала в один клик.
-                  </p>
-
-                  {/* Canvas controller interactive demo */}
-                  <div className="bg-white/70 backdrop-blur rounded-2xl border border-white/50 p-5 space-y-4">
-                    <div className="grid grid-cols-2 gap-4 text-xs font-semibold">
-                      <div className="space-y-1">
-                        <label className="text-[10px] text-slate-400 block uppercase">Заголовок обложки:</label>
-                        <input 
-                          type="text" 
-                          value={canvasMainText} 
-                          onChange={e => setCanvasMainText(e.target.value)}
-                          className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs"
-                        />
-                      </div>
-                      <div className="space-y-1">
-                        <label className="text-[10px] text-slate-400 block uppercase">Водяной знак:</label>
-                        <input 
-                          type="text" 
-                          value={canvasWatermark} 
-                          onChange={e => setCanvasWatermark(e.target.value)}
-                          className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="flex gap-2">
-                      <button onClick={() => setCanvasBgColor('from-orange-100 to-pink-200')} className="px-2.5 py-1 bg-orange-100 rounded-lg text-[10px] font-bold text-orange-800 hover:bg-orange-200">Закатный пастельный</button>
-                      <button onClick={() => setCanvasBgColor('from-orange-100 to-amber-200')} className="px-2.5 py-1 bg-orange-100 rounded-lg text-[10px] font-bold text-orange-850 hover:bg-orange-200">Персиковый пастельный</button>
-                      <button onClick={() => setCanvasBgColor('from-pink-100 to-rose-200')} className="px-2.5 py-1 bg-pink-100 rounded-lg text-[10px] font-bold text-pink-800 hover:bg-pink-200">Розовый пастельный</button>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Canva Canvas visual representation */}
-                <div className="lg:col-span-5">
-                  <div className={`p-8 bg-gradient-to-tr ${canvasBgColor} rounded-3xl border border-white/50 shadow-xl h-64 flex flex-col justify-between relative overflow-hidden filter backdrop-contrast-125`}>
-                    <div className="flex justify-between items-center text-[10px] font-mono text-slate-500 z-10">
-                      <span className="font-extrabold tracking-wider uppercase">ИИSMM ХОЛСТ СТУДИЯ</span>
-                      <span>1:1 Square</span>
-                    </div>
-
-                    <div className="text-center z-10 py-4">
-                      <h3 className="text-lg font-black tracking-tight text-indigo-950 uppercase leading-snug drop-shadow-sm font-sans">
-                        {canvasMainText}
-                      </h3>
-                      <span className="block text-[9px] text-indigo-800/80 font-mono mt-1 font-bold">Сгенерировано в холсте</span>
-                    </div>
-
-                    <div className="flex justify-between items-end text-[10px] font-bold text-indigo-900/60 z-10 font-mono">
-                      <span>ИИSMM Canvas App</span>
-                      <span className="bg-white/50 backdrop-blur px-2 py-0.5 rounded border border-white/20 text-slate-800 text-[9px]">{canvasWatermark}</span>
-                    </div>
-
-                    {/* Decorative glass bubbles */}
-                    <div className="absolute right-4 top-4 w-12 h-12 rounded-full bg-white/20 blur-[1px] rotate-12"></div>
-                    <div className="absolute -left-4 -bottom-4 w-16 h-16 rounded-full bg-orange-400/20 blur-md"></div>
-                  </div>
-                  <p className="text-[10px] text-slate-400 text-center font-semibold mt-3">Данный интерактивный Холст полнофункционален в личном кабинете!</p>
-                </div>
-              </div>
-            )}
-
-            {/* INFORMATIVE SECTION 8: РЕПОСТЕР 🔄 */}
-            {activeTab === 'reposter' && (
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center py-4">
-                <div className="lg:col-span-7 space-y-5">
-                  <span className="px-3 py-1 bg-rose-100 text-rose-800 rounded-full text-[10px] font-black uppercase border border-rose-200">АВТОМАТИКА ФИДОВ</span>
-                  <h2 className="text-3xl font-extrabold tracking-tight text-gradient-header">Умный репостер новостей по правилам</h2>
-                  <p className="text-slate-600 text-sm leading-relaxed">
-                    Настройте автоматический забор новостной ленты из RSS, ВКонтакте, Telegram-референс группы или конкурентного блога. Наш репостер применит встроенное ИИ-рерайтинг правило (SAV AI), удалит ссылки на внешних соперников, наложит водяной знак и тут же отправит в ваши дочерние паблики.
-                  </p>
-                  <ul className="space-y-2 text-xs font-semibold text-slate-700">
-                    <li className="flex items-center gap-1.5"><Check className="w-4 h-4 text-orange-500" /> Фильтрация по запрещенным ключевым словам в текстах</li>
-                    <li className="flex items-center gap-1.5"><Check className="w-4 h-4 text-orange-500" /> Замена ссылок и удаление спам рекламы перед отправкой</li>
-                    <li className="flex items-center gap-1.5"><Check className="w-4 h-4 text-orange-500" /> Настройка задержки кросспостинга (от 1 до 60 минут)</li>
-                  </ul>
-                </div>
-
-                <div className="lg:col-span-5 bg-white/60 backdrop-blur rounded-3xl p-6 border border-white/55 shadow-sm space-y-4">
-                  <h3 className="font-extrabold text-xs text-slate-800 uppercase tracking-widest border-b pb-1.5">Схема авторепостера:</h3>
-                  <div className="space-y-2.5 text-xs">
-                    <div className="p-3 bg-white rounded-xl border border-dashed flex items-center justify-between font-mono">
-                      <span className="font-bold">🌐 Источник (Блог конкурента)</span>
-                      <span className="p-1.5 bg-orange-100 text-orange-850 rounded text-[9px] uppercase">Следим</span>
-                    </div>
-                    <div className="flex justify-center">
-                      <ArrowRight className="w-4 h-4 text-pink-450 rotate-90" />
-                    </div>
-                    <div className="p-3 bg-pink-50 rounded-xl border border-pink-100 flex items-center justify-between font-mono text-[11px]">
-                      <span className="font-black text-pink-850">⚙️ ИИ-Фильтры & ИИрки SAV rewriter</span>
-                      <span className="p-1 bg-pink-200 text-pink-800 rounded font-black text-[9px] uppercase">Анализ</span>
-                    </div>
-                    <div className="flex justify-center">
-                      <ArrowRight className="w-4 h-4 text-pink-450 rotate-90" />
-                    </div>
-                    <div className="p-3 bg-orange-50 rounded-xl border border-orange-100 flex items-center justify-between font-mono">
-                      <span className="font-bold text-orange-850">✈️ Мои Telegram-каналы (С водяным знаком)</span>
-                      <span className="p-1 px-2.5 bg-orange-200 text-orange-800 rounded font-black text-[9px] uppercase">Публикация</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
             {/* INFORMATIVE SECTION 9: ТАРИФЫ */}
             {activeTab === 'prices' && (
-              <div className="space-y-6 py-4">
-                <div className="text-center max-w-xl mx-auto space-y-2">
-                  <span className="px-3 py-1 bg-orange-100 text-orange-900 rounded-full text-[10px] font-black uppercase border border-orange-200">ПРОЗРАЧНАЯ ОПЛАТА</span>
-                  <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-gradient-header">Интеллектуальные тарифные планы ИИSMM</h2>
+              <div className="space-y-8 py-4">
+                <div className="text-center max-w-xl mx-auto space-y-3">
+                  <span className="px-3 py-1 bg-gradient-to-r from-orange-400 to-pink-500 text-white rounded-full text-[9px] font-black uppercase tracking-widest font-mono">ПРОЗРАЧНАЯ ОПЛАТА</span>
+                  <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-gradient-header uppercase">Интеллектуальные тарифные планы ИИSMM</h2>
                   <p className="text-slate-500 text-xs">Выберите подходящую мощность для ваших соцсетей. Активация доступна за рубли или внутреннюю валюту (ИИрки).</p>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto items-stretch">
-                  
-                  {/* Free plan */}
-                  <div className="apple-liquid-glass rounded-3xl p-6 border border-orange-200 shadow-sm flex flex-col justify-between space-y-6 bg-orange-50/20">
-                    <div className="space-y-3">
-                      <div className="flex justify-between items-center">
-                        <span className="px-2.5 py-0.5 bg-orange-100 text-orange-850 rounded-full text-[9px] font-black uppercase">Тестовый</span>
-                        <span className="text-xs font-mono font-bold text-orange-600">0 ₽</span>
-                      </div>
-                      <h3 className="text-lg font-black tracking-tight text-slate-800">FREE ТАРИФ</h3>
-                      <p className="text-xs text-slate-500 font-medium">Бесплатный базовый инструмент для личных страниц.</p>
-                      <ul className="space-y-2 text-xs text-slate-700">
-                        <li className="flex items-center gap-1.5">• Подключение до 3 каналов максимум</li>
-                        <li className="flex items-center gap-1.5">• Наложение водяных знаков</li>
-                        <li className="flex items-center gap-1.5">• 1,000,000 ИИрок в подарок при входе</li>
-                        <li className="flex items-center gap-1.5 text-slate-400">• <span className="line-through">Умный ИИ рерайт постов</span></li>
-                      </ul>
-                    </div>
-                    <button 
-                      onClick={() => setShowTelegramModal(true)} 
-                      className="w-full py-3 btn-liquid-glass btn-glass-peach text-xs uppercase"
-                    >
-                      Подключить FREE 🚀
-                    </button>
-                  </div>
-
-                  {/* PRO plan */}
-                  <div className="apple-liquid-glass rounded-3xl p-6 border-2 border-orange-400/50 shadow-md flex flex-col justify-between space-y-6 relative transform lg:-translate-y-1.5 bg-orange-50/30">
-                    <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-3 py-1 bg-orange-500 text-white text-[9px] font-black rounded-full uppercase tracking-widest shadow-sm">Самый Популярный</div>
-                    <div className="space-y-3">
-                      <div className="flex justify-between items-center">
-                        <span className="px-2.5 py-0.5 bg-orange-100 text-orange-850 rounded-full text-[9px] font-black uppercase">Безлимитный</span>
-                        <div className="text-right">
-                          <span className="text-xs font-mono font-black text-slate-800 block">490 ₽ / мес</span>
-                          <span className="text-[9px] text-orange-750 block font-bold font-mono">или 250 ИИрок</span>
-                        </div>
-                      </div>
-                      <h3 className="text-lg font-black tracking-tight text-slate-800">⚡ PRO ТАРИФ</h3>
-                      <p className="text-xs text-slate-500 font-medium">Для профессиональных SMM-маркетологов и паблик-холдеров.</p>
-                      <ul className="space-y-2 text-xs text-slate-700 font-semibold">
-                        <li className="flex items-center gap-1.5"><Check className="w-4 h-4 text-orange-600" /> Полный безлимит на каналы</li>
-                        <li className="flex items-center gap-1.5"><Check className="w-4 h-4 text-orange-600" /> ИИ Рерайт SAV и умная генерация</li>
-                        <li className="flex items-center gap-1.5"><Check className="w-4 h-4 text-orange-600" /> UTM Ссылки и расширенная аналитика</li>
-                        <li className="flex items-center gap-1.5"><Check className="w-4 h-4 text-orange-600" /> Приоритетный отложенный фид</li>
-                      </ul>
-                    </div>
-                    <button 
-                      onClick={() => setShowTelegramModal(true)} 
-                      className="w-full py-3 btn-liquid-glass btn-glass-peach text-xs uppercase"
-                    >
-                      Купить PRO ⚡
-                    </button>
-                  </div>
-
-                  {/* VIP Plan */}
-                  <div className="apple-liquid-glass rounded-3xl p-6 border border-pink-300/40 shadow-sm flex flex-col justify-between space-y-6 bg-pink-50/20">
-                    <div className="space-y-3">
-                      <div className="flex justify-between items-center">
-                        <span className="px-2.5 py-0.5 bg-pink-100 text-pink-800 rounded-full text-[9px] font-black uppercase">Ультимейт</span>
-                        <div className="text-right">
-                          <span className="text-xs font-mono font-black text-slate-800 block">990 ₽ / мес</span>
-                          <span className="text-[9px] text-pink-750 block font-bold font-mono">или 500 ИИрок</span>
-                        </div>
-                      </div>
-                      <h3 className="text-lg font-black tracking-tight text-slate-800">⭐ VIP СУПЕРВИЗОР</h3>
-                      <p className="text-xs text-slate-500 font-medium">Максимальная бизнес-лицензия с умным авто-модератором.</p>
-                      <ul className="space-y-2 text-xs text-slate-700">
-                        <li className="flex items-center gap-1.5">• Все особенности безлимитного тарифа</li>
-                        <li className="flex items-center gap-1.5">• Бот-чистильщик спам комментариев</li>
-                        <li className="flex items-center gap-1.5">• VIP значок и приоритетная ИИ-очередь</li>
-                        <li className="flex items-center gap-1.5">• Персональная поддержка SMM команды</li>
-                      </ul>
-                    </div>
-                    <button 
-                      onClick={() => setShowTelegramModal(true)} 
-                      className="w-full py-3 btn-liquid-glass btn-glass-pink text-xs uppercase"
-                    >
-                      Запустить VIP ⭐
-                    </button>
-                  </div>
-
-                </div>
+                <TariffCards onAction={() => setShowTelegramModal(true)} />
               </div>
             )}
 
-            {/* INFORMATIVE SECTION 10: ПРОЕКТЫ */}
-            {activeTab === 'projects' && (
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center py-4">
-                <div className="lg:col-span-7 space-y-5">
-                  <span className="px-3 py-1 bg-orange-100 text-orange-900 rounded-full text-[10px] font-black uppercase border border-orange-200">СБОРОЧНЫЕ КАМПАНИИ</span>
-                  <h2 className="text-3xl font-extrabold tracking-tight leading-tight text-gradient-header">Проекты и взаимный PR пабликов</h2>
-                  <p className="text-slate-600 text-sm leading-relaxed">
-                    Мультибрендовые проекты позволяют объединить рекламу нескольких каналов. Инструмент "Взаимные папки продвижения" позволяет организовывать рекламные сборы, делить комиссии, привлекать новых участников и автоматически раздавать трафик.
-                  </p>
-                  <div className="p-4 bg-orange-100/50 rounded-2xl border border-orange-200 text-xs text-orange-900 font-semibold flex items-center gap-2">
-                    <Trophy className="w-5 h-5 text-orange-500 shrink-0" />
-                    <span>Для организаторов сборов модуль продвижения полностью бесплатен! Зарабатывайте на комиссиях папок.</span>
-                  </div>
-                </div>
 
-                <div className="lg:col-span-5 bg-white/70 backdrop-blur rounded-3xl p-6 border border-white/50 shadow-sm space-y-4">
-                  <h4 className="font-extrabold text-xs text-slate-800 uppercase tracking-widest border-b pb-1.5">Кабинет проектов (Спецификация):</h4>
-                  <div className="space-y-3">
-                    {[
-                      { campaign: 'Маркетинг Май (Сборный пиар)', channels: '6 каналов', budget: '250 ₽ взнос' },
-                      { campaign: 'Крипто Клуб (Взаимная папка)', channels: '4 канала', budget: '500 ₽ взнос' },
-                      { campaign: 'Нейросети 2026 (Топ Лист)', channels: '8 каналов', budget: 'Бесплатное участие' }
-                    ].map((item, idx) => (
-                      <div key={idx} className="p-3 bg-white/80 rounded-xl border border-slate-100 flex items-center justify-between text-xs">
-                        <div>
-                          <p className="font-bold text-slate-850">{item.campaign}</p>
-                          <p className="text-[10px] text-slate-500 mt-0.5">{item.channels}</p>
-                        </div>
-                        <span className="px-2.5 py-1 bg-orange-50 text-orange-800 font-mono text-[10px] rounded-lg font-bold">{item.budget}</span>
-                      </div>
-                    ))}
-                  </div>
-                  <button onClick={() => setShowTelegramModal(true)} className="w-full py-2.5 bg-gradient-to-r from-orange-400 to-pink-500 hover:from-orange-500 hover:to-pink-600 text-white font-black text-xs rounded-xl uppercase shadow transition-all">Создать свою папку 📂</button>
-                </div>
-              </div>
-            )}
 
             {/* INFORMATIVE SECTION 11: АКАДЕМИЯ */}
             {activeTab === 'academy' && (() => {
@@ -1526,7 +1468,7 @@ export default function LandingPage({ onLogin, user, onUpdateUser, currentPath, 
             Вход за 1 Секунду без паролей через Telegram
           </h3>
           <p className="text-xs text-slate-500 max-w-xl mx-auto leading-relaxed">
-            Мы начислим вам стартовые **1,000,000 ИИрок (токенов)**, подключим до 3 каналов на Free-тарифе и подарим 7 дней VIP-Супервизора абсолютно бесплатно без привязки карт!
+            {renderWithBold("Мы начислим вам стартовые **1,000,000 ИИрок (токенов)** и подключим до 3 каналов на Free-тарифе абсолютно бесплатно без привязки карт!")}
           </p>
           <div className="flex justify-center pt-2">
             <button
@@ -1547,12 +1489,12 @@ export default function LandingPage({ onLogin, user, onUpdateUser, currentPath, 
 
       {/* 4. Realistic Telegram Auth Glass Dialog Simulator */}
       {showTelegramModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/15 backdrop-blur-3xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-transparent backdrop-blur-[2px]">
           <motion.div 
             initial={{ scale: 0.95, opacity: 0, y: 15 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.95, opacity: 0, y: 15 }}
-            className="w-full max-w-sm apple-liquid-glass-heavy rounded-[28px] overflow-hidden shadow-2xl border border-white/60 p-1 bg-white/70 backdrop-blur-2xl"
+            className="w-full max-w-sm apple-liquid-glass-heavy rounded-[28px] overflow-hidden shadow-2xl border border-white/60 p-1 bg-white/70 backdrop-blur-md"
           >
             {/* Telegram Header */}
             <div className="bg-gradient-to-r from-orange-400 via-pink-500 to-sky-450 p-5 rounded-[24px] text-white flex items-center justify-between shadow-md border border-white/25">
@@ -1564,7 +1506,9 @@ export default function LandingPage({ onLogin, user, onUpdateUser, currentPath, 
                 </div>
                 <div>
                   <h4 className="font-extrabold text-sm tracking-tight leading-none text-white">Вход по Telegram API</h4>
-                  <span className="text-[10px] text-orange-50/90 block mt-1 font-mono">@iiSmmBot Secure Auth</span>
+                  <span className="text-[10px] text-orange-50/90 block mt-1 font-mono">
+                    <a href="https://t.me/iismmAIbot" target="_blank" rel="noopener noreferrer" className="hover:text-white underline">@iismmAIbot</a> Secure Auth
+                  </span>
                 </div>
               </div>
               <button 
@@ -1653,12 +1597,12 @@ export default function LandingPage({ onLogin, user, onUpdateUser, currentPath, 
 
       {/* 4.5 Terms of Service Elegant Glass Sheet Modal */}
       {showTermsModal && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/15 backdrop-blur-3xl">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-transparent backdrop-blur-[2px]">
           <motion.div
             initial={{ scale: 0.95, opacity: 0, y: 20 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.95, opacity: 0, y: 20 }}
-            className="w-full max-w-lg apple-liquid-glass-heavy rounded-[28px] overflow-hidden shadow-2xl border border-white/60 p-1 bg-white/80 backdrop-blur-2xl"
+            className="w-full max-w-lg apple-liquid-glass-heavy rounded-[28px] overflow-hidden shadow-2xl border border-white/60 p-1 bg-white/80 backdrop-blur-md"
           >
             <div className="bg-gradient-to-r from-orange-400 via-pink-500 to-sky-450 p-5 rounded-[24px] text-white flex items-center justify-between shadow-md border border-white/20">
               <div className="flex items-center gap-2.5">
@@ -1683,7 +1627,7 @@ export default function LandingPage({ onLogin, user, onUpdateUser, currentPath, 
             <div className="p-6 space-y-4 max-h-[350px] overflow-y-auto text-xs text-slate-700 leading-relaxed scrollbar-thin scrollbar-thumb-slate-200">
               <h5 className="font-black text-slate-800 uppercase tracking-wider text-[10px]">1. Общие положения</h5>
               <p>
-                Использование интеллектуальной платформы автоматического постинга и комбайна ИИSMM API регулируется данным соглашением. Подключая свой аккаунт через Telegram-бот <strong>@iiSmmBot</strong>, вы получаете доступ к автономному облачному генератору контента, планировщику, рерайтеру ссылок и внутреннему кошельку ИИрок.
+                Использование интеллектуальной платформы автоматического постинга и комбайна ИИSMM API регулируется данным соглашением. Подключая свой аккаунт через Telegram-бот <strong><a href="https://t.me/iismmAIbot" target="_blank" rel="noopener noreferrer" className="text-pink-650 hover:underline">@iismmAIbot</a></strong>, вы получаете доступ к автономному облачному генератору контента, планировщику, рерайтеру ссылок и внутреннему кошельку ИИрок.
               </p>
 
               <h5 className="font-black text-slate-800 uppercase tracking-wider text-[10px]">2. Безопасность и Telegram API</h5>

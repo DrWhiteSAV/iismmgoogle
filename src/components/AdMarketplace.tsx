@@ -158,7 +158,7 @@ export default function AdMarketplace({
             <div className="flex-1">
               <span className="font-bold text-slate-800 block text-[13px]">Безопасная SMM-сделка с эскроу-гарантом ИИSMM</span>
               <span>
-                Средства резервируются на балансе и выплачиваются владельцу площадки только после успешного факта публикации и автоматической проверки ботом <span className="font-bold text-pink-650">@iiSmmBot</span>. Комиссия биржи составляет всего 10%.
+                Средства резервируются на балансе и выплачиваются владельцу площадки только после успешного факта публикации и автоматической проверки ботом <a href="https://t.me/iismmAIbot" target="_blank" rel="noopener noreferrer" className="font-bold text-pink-650 hover:underline">@iismmAIbot</a>. Комиссия биржи составляет всего 10%.
               </span>
             </div>
           </div>
@@ -623,7 +623,7 @@ export default function AdMarketplace({
                     className="w-4 h-4 rounded border-slate-300 text-pink-500 cursor-pointer mt-0.5"
                   />
                   <span className="text-[9px] text-slate-500 leading-normal font-semibold">
-                    Я соглашаюсь с резервированием баланса на время публикации и автоматическим контролем через @iiSmmBot.
+                    Я соглашаюсь с резервированием баланса на время публикации и автоматическим контролем через <a href="https://t.me/iismmAIbot" target="_blank" rel="noopener noreferrer" className="text-pink-600 hover:text-pink-700 underline font-semibold">@iismmAIbot</a>.
                   </span>
                 </div>
 
