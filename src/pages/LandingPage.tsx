@@ -1,8 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { 
-  Sparkles, Play, ShieldCheck, Mail, MessageSquare, AlertTriangle, Lightbulb, 
+  Sparkles, Play, Pause, ShieldCheck, Mail, MessageSquare, AlertTriangle, Lightbulb, 
   Smartphone, BookOpen, GraduationCap, Brush, Repeat, Trophy, ExternalLink, 
-  ChevronRight, Calendar, Layers, Image as ImageIcon, Check, Heart, Users, BarChart3, Radio, FileText, Send, HelpCircle, ArrowRight, RefreshCw, Star, ShoppingBag
+  ChevronRight, ChevronLeft, Calendar, Layers, Image as ImageIcon, Check, Heart, Users, BarChart3, Radio, FileText, Send, HelpCircle, ArrowRight, RefreshCw, Star, ShoppingBag
 } from 'lucide-react';
 import { motion, AnimatePresence, useScroll, useTransform, useVelocity, useSpring } from 'motion/react';
 import { UserAccount } from '../types';
@@ -16,7 +16,7 @@ import FeaturesCarousel from '../components/FeaturesCarousel';
 import BlogPage from './BlogPage';
 import AIPage from './AIPage';
 
-// Reusable Multi-Gradient Tariff Cards layout with precise specs
+// Reusable Multi-Gradient Tariff Cards layout with sequential loading animation
 function TariffCards({ onAction }: { onAction: () => void }) {
   const plans = [
     {
@@ -94,59 +94,584 @@ function TariffCards({ onAction }: { onAction: () => void }) {
     }
   ];
 
+  const [activeCardIdx, setActiveCardIdx] = useState(0);
+  const [currentFeatureLimit, setCurrentFeatureLimit] = useState(0);
+  const [hasStarted, setHasStarted] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) {
+        setHasStarted(true);
+        observer.disconnect();
+      }
+    }, { threshold: 0.1 });
+
+    if (containerRef.current) {
+      observer.observe(containerRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (!hasStarted) return;
+
+    let timer: NodeJS.Timeout;
+    
+    const step = () => {
+      const currentCard = plans[activeCardIdx];
+      if (!currentCard) return;
+
+      if (currentFeatureLimit < currentCard.features.length) {
+        // Increment feature inside current card
+        setCurrentFeatureLimit(prev => prev + 1);
+      } else {
+        // All features for active card shown. Proceed to next card index.
+        if (activeCardIdx < plans.length - 1) {
+          setActiveCardIdx(prev => prev + 1);
+          setCurrentFeatureLimit(0);
+        }
+      }
+    };
+
+    // snappy delay for perfect visual performance
+    timer = setTimeout(step, 140);
+    return () => clearTimeout(timer);
+  }, [activeCardIdx, currentFeatureLimit, hasStarted]);
+
+  const isAnimationFinished = activeCardIdx === plans.length - 1 && currentFeatureLimit === plans[plans.length - 1].features.length;
+
+  const handleRestart = () => {
+    setActiveCardIdx(0);
+    setCurrentFeatureLimit(0);
+  };
+
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto items-stretch px-4">
-      {plans.map((plan, idx) => (
-        <div 
-          key={idx} 
-          className={`apple-liquid-glass rounded-3xl p-6 border flex flex-col justify-between space-y-5 relative transition-all duration-300 hover:scale-102 ${
-            plan.isPopular 
-              ? 'border-pink-500/60 shadow-lg ring-1 ring-pink-400 bg-pink-50/10' 
-              : 'border-slate-200/60 shadow-sm bg-white/35'
-          }`}
-        >
-          {plan.isPopular && (
-            <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 bg-gradient-to-r from-orange-400 via-pink-500 to-sky-450 text-white text-[9px] font-black rounded-full uppercase tracking-widest shadow-sm">
-              ХИТ ПРОДАЖ 🔥
-            </div>
-          )}
-          <div className="space-y-4">
-            <div className="flex justify-between items-center bg-slate-100/30 p-2 rounded-xl border border-slate-200/10">
-              <span className={`px-2 py-0.5 rounded-full text-[8.5px] font-black uppercase tracking-wider ${
-                plan.isPopular ? 'bg-pink-100 text-pink-700' : 'bg-slate-100/80 text-slate-600'
-              }`}>
-                {plan.badge}
-              </span>
-              <span className="text-xs font-mono font-extrabold text-slate-800">{plan.price}</span>
-            </div>
-            
-            <div>
-              {/* Heading with requested multicolor gradient */}
-              <h3 className="text-[13px] font-black tracking-tight text-multicolor-gradient uppercase">
-                {plan.name}
-              </h3>
-              <p className="text-[10px] text-slate-500 font-medium mt-0.5">{plan.sub}</p>
-            </div>
+    <div ref={containerRef} className="space-y-5 w-full">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto items-stretch px-4 min-h-[500px]">
+        {plans.map((plan, idx) => {
+          const isCardVisible = idx <= activeCardIdx;
+          if (!isCardVisible) return null;
 
-            <ul className="space-y-1.5 text-[10.5px] text-slate-600 font-semibold pt-2 border-t border-slate-200/55">
-              {plan.features.map((feat, fIdx) => (
-                <li key={fIdx} className="flex items-start gap-1.5 leading-normal">
-                  <span className="text-sky-500 shrink-0 select-none">✦</span>
-                  <span className="text-slate-700 font-medium">{feat}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
+          const visibleFeaturesCount = idx < activeCardIdx ? plan.features.length : currentFeatureLimit;
 
-          {/* Button with requested multicolor gradient */}
-          <button 
-            onClick={onAction} 
-            className="w-full py-3.5 bg-multicolor-gradient hover:opacity-95 text-white font-black text-[10.5px] uppercase rounded-xl tracking-wider shadow-md transition-all duration-200 hover:-translate-y-0.5 cursor-pointer active:translate-y-0"
+          return (
+            <motion.div 
+              key={idx} 
+              initial={{ opacity: 0, y: 20, scale: 0.96 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              transition={{ duration: 0.4, ease: "easeOut" }}
+              className={`apple-liquid-glass rounded-3xl p-6 border flex flex-col justify-between space-y-5 relative transition-all duration-300 hover:scale-102 ${
+                plan.isPopular 
+                  ? 'border-pink-500/60 shadow-lg ring-1 ring-pink-400 bg-pink-50/10' 
+                  : 'border-slate-200/60 shadow-sm bg-white/35'
+              }`}
+            >
+              {plan.isPopular && (
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 bg-gradient-to-r from-orange-400 via-pink-500 to-sky-450 text-white text-[9px] font-black rounded-full uppercase tracking-widest shadow-sm z-10">
+                  ХИТ ПРОДАЖ 🔥
+                </div>
+              )}
+              <div className="space-y-4">
+                <div className="flex justify-between items-center bg-slate-100/30 p-2 rounded-xl border border-slate-200/10">
+                  <span className={`px-2 py-0.5 rounded-full text-[8.5px] font-black uppercase tracking-wider ${
+                    plan.isPopular ? 'bg-pink-100 text-pink-700' : 'bg-slate-100/80 text-slate-600'
+                  }`}>
+                    {plan.badge}
+                  </span>
+                  <span className="text-xs font-mono font-extrabold text-slate-800">{plan.price}</span>
+                </div>
+                
+                <div>
+                  {/* Heading with requested multicolor gradient */}
+                  <h3 className="text-[13px] font-black tracking-tight text-multicolor-gradient uppercase">
+                    {plan.name}
+                  </h3>
+                  <p className="text-[10px] text-slate-500 font-medium mt-0.5">{plan.sub}</p>
+                </div>
+
+                <ul className="space-y-1.5 text-[10.5px] text-slate-600 font-semibold pt-2 border-t border-slate-200/55">
+                  {plan.features.slice(0, visibleFeaturesCount).map((feat, fIdx) => (
+                    <motion.li 
+                      key={fIdx} 
+                      initial={{ opacity: 0, x: -8 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ type: "spring", stiffness: 350, damping: 25 }}
+                      className="flex items-start gap-1.5 leading-normal"
+                    >
+                      <span className="text-sky-500 shrink-0 select-none">✦</span>
+                      <span className="text-slate-700 font-medium">{feat}</span>
+                    </motion.li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* Button with requested multicolor gradient */}
+              <button 
+                onClick={onAction} 
+                className="w-full py-3.5 bg-multicolor-gradient hover:opacity-95 text-white font-black text-[10.5px] uppercase rounded-xl tracking-wider shadow-md transition-all duration-200 hover:-translate-y-0.5 cursor-pointer active:translate-y-0 mt-4"
+              >
+                Подключить {plan.name.split(' ')[0]} 🚀
+              </button>
+            </motion.div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+const STOCK_AVATARS = [
+  "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=150&h=150", // Alexander
+  "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=150&h=150", // Maria
+  "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=150&h=150", // Semen
+  "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&q=80&w=150&h=150", // Anna
+  "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=150&h=150"  // Dmitry
+];
+
+const roleForIdx = (idx: number) => {
+  const roles = [
+    "Основатель SMM Sages",
+    "Инфлюенсер & Блогер",
+    "TG Креатор @semen_smm",
+    "Продюсер Академии ИИ",
+    "Fullstack Разработчик"
+  ];
+  return roles[idx % roles.length];
+};
+
+// Sub-component for typing/typewriting animation inside reviews
+function TypewrittenQuote({ text, isActive }: { text: string; isActive: boolean }) {
+  const [displayed, setDisplayed] = useState("");
+  
+  useEffect(() => {
+    if (!isActive) {
+      setDisplayed(text);
+      return;
+    }
+    
+    setDisplayed("");
+    let index = 0;
+    const interval = setInterval(() => {
+      index++;
+      setDisplayed(text.slice(0, index));
+      if (index >= text.length) {
+        clearInterval(interval);
+      }
+    }, 12); // Fast typing feels high-fidelity
+    
+    return () => clearInterval(interval);
+  }, [text, isActive]);
+
+  return <span>{displayed}</span>;
+}
+
+// Sub-component for sequential filling stars rating on active turn
+function ActionStars({ rating, isActive }: { rating: number; isActive: boolean }) {
+  const [filledCount, setFilledCount] = useState(0);
+
+  useEffect(() => {
+    if (!isActive) {
+      setFilledCount(rating);
+      return;
+    }
+
+    setFilledCount(0);
+    let current = 0;
+    const interval = setInterval(() => {
+      current++;
+      setFilledCount(current);
+      if (current >= rating) {
+        clearInterval(interval);
+      }
+    }, 120); // fill star by star sequentially
+
+    return () => clearInterval(interval);
+  }, [rating, isActive]);
+
+  return (
+    <div className="flex gap-0.5">
+      {Array.from({ length: 5 }).map((_, rIdx) => {
+        const isFilled = rIdx < filledCount;
+        return (
+          <motion.div
+            key={rIdx}
+            animate={isFilled && isActive ? { scale: [1, 1.3, 1] } : { scale: 1 }}
+            transition={{ duration: 0.2 }}
           >
-            Подключить {plan.name.split(' ')[0]} 🚀
-          </button>
+            <Star 
+              className={`w-3.5 h-3.5 shrink-0 transition-colors duration-300 ${
+                isFilled 
+                  ? 'text-orange-400 fill-orange-400' 
+                  : 'text-slate-200 fill-slate-100'
+              }`} 
+            />
+          </motion.div>
+        );
+      })}
+    </div>
+  );
+}
+
+// 3D Carousel component for reviews with responsive orbit radius and autoplay progress controls
+function Reviews3DCarousel({
+  reviews,
+  onAddReviewClick
+}: {
+  reviews: any[];
+  onAddReviewClick: () => void;
+}) {
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(true);
+  const [progress, setProgress] = useState(0);
+  
+  const [radius, setRadius] = useState(420);
+  const [isMobile, setIsMobile] = useState(false);
+  const [dragOffset, setDragOffset] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => {
+      const w = window.innerWidth;
+      setIsMobile(w < 480);
+      if (w < 485) {
+        setRadius(180);
+      } else if (w < 768) {
+        setRadius(260);
+      } else if (w < 1024) {
+        setRadius(340);
+      } else {
+        setRadius(420);
+      }
+    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  useEffect(() => {
+    let intervalId: number;
+    const AUTO_PLAY_DURATION = 10000; // 10 seconds per review slider
+    const PROGRESS_STEP_MS = 40; // update progress every 40ms
+
+    if (isPlaying && reviews.length > 1) {
+      const startTime = Date.now();
+      intervalId = window.setInterval(() => {
+        const elapsed = Date.now() - startTime;
+        const pct = Math.min((elapsed / AUTO_PLAY_DURATION) * 100, 100);
+        setProgress(pct);
+        
+        if (pct >= 100) {
+          setActiveIndex((prev) => (prev + 1) % reviews.length);
+          setProgress(0);
+        }
+      }, PROGRESS_STEP_MS);
+    } else {
+      setProgress(0);
+    }
+
+    return () => {
+      if (intervalId) clearInterval(intervalId);
+    };
+  }, [isPlaying, activeIndex, reviews.length]);
+
+  const handleNext = () => {
+    if (reviews.length === 0) return;
+    setActiveIndex((prev) => (prev + 1) % reviews.length);
+  };
+
+  const handlePrev = () => {
+    if (reviews.length === 0) return;
+    setActiveIndex((prev) => (prev === 0 ? reviews.length - 1 : prev - 1));
+  };
+
+  const swipeStartX = useRef<number | null>(null);
+  const swipeEndX = useRef<number | null>(null);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    swipeStartX.current = e.touches[0].clientX;
+    swipeEndX.current = e.touches[0].clientX;
+    setIsDragging(true);
+    setDragOffset(0);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    swipeEndX.current = e.touches[0].clientX;
+    if (swipeStartX.current !== null) {
+      setDragOffset(e.touches[0].clientX - swipeStartX.current);
+    }
+  };
+
+  const handleTouchEnd = () => {
+    if (swipeStartX.current === null || swipeEndX.current === null) {
+      setIsDragging(false);
+      setDragOffset(0);
+      return;
+    }
+    const diff = swipeStartX.current - swipeEndX.current;
+    const minDistance = 50; // in pixels
+    if (diff > minDistance) {
+      handleNext();
+    } else if (diff < -minDistance) {
+      handlePrev();
+    }
+    swipeStartX.current = null;
+    swipeEndX.current = null;
+    setIsDragging(false);
+    setDragOffset(0);
+  };
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (e.button !== 0) return;
+    swipeStartX.current = e.clientX;
+    swipeEndX.current = e.clientX;
+    setIsDragging(true);
+    setDragOffset(0);
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (swipeStartX.current !== null) {
+      swipeEndX.current = e.clientX;
+      setDragOffset(e.clientX - swipeStartX.current);
+    }
+  };
+
+  const handleMouseUp = () => {
+    if (swipeStartX.current === null || swipeEndX.current === null) {
+      setIsDragging(false);
+      setDragOffset(0);
+      return;
+    }
+    const diff = swipeStartX.current - swipeEndX.current;
+    const minDistance = 50; // in pixels
+    if (diff > minDistance) {
+      handleNext();
+    } else if (diff < -minDistance) {
+      handlePrev();
+    }
+    swipeStartX.current = null;
+    swipeEndX.current = null;
+    setIsDragging(false);
+    setDragOffset(0);
+  };
+
+  const angleStep = 360 / Math.max(reviews.length, 1);
+
+  return (
+    <div 
+      className="relative w-full py-8 select-none overflow-visible flex flex-col items-center group/global3d cursor-grab active:cursor-grabbing"
+      onMouseLeave={handleMouseUp}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+      onMouseDown={handleMouseDown}
+      onMouseMove={handleMouseMove}
+      onMouseUp={handleMouseUp}
+    >
+      {/* Floating Left Navigation button */}
+      <button
+        type="button"
+        onClick={(e) => {
+          e.stopPropagation();
+          handlePrev();
+        }}
+        className="absolute -left-1 xs:left-0 sm:left-[3%] lg:left-[8%] xl:left-[12%] top-[140px] z-40 w-11 h-11 rounded-full bg-white/95 border border-slate-200 text-slate-700 hover:text-pink-650 hover:scale-110 active:scale-95 transition-all shadow-md flex items-center justify-center cursor-pointer select-none"
+        aria-label="Назад"
+      >
+        <ChevronLeft className="w-5 h-5" />
+      </button>
+
+      {/* Floating Right Navigation button */}
+      <button
+        type="button"
+        onClick={(e) => {
+          e.stopPropagation();
+          handleNext();
+        }}
+        className="absolute -right-1 xs:right-0 sm:right-[3%] lg:right-[8%] xl:right-[12%] top-[140px] z-40 w-11 h-11 rounded-full bg-white/95 border border-slate-200 text-slate-700 hover:text-pink-650 hover:scale-110 active:scale-95 transition-all shadow-md flex items-center justify-center cursor-pointer select-none"
+        aria-label="Вперед"
+      >
+        <ChevronRight className="w-5 h-5" />
+      </button>
+
+      {/* 3D stage viewport wrapper */}
+      <div 
+        className="relative overflow-visible flex items-center justify-center w-[270px] sm:w-[325px] h-[310px]" 
+        style={{ perspective: '1600px' }}
+      >
+        <div 
+          className="absolute inset-0 transition-transform duration-700"
+          style={{
+            transformStyle: 'preserve-3d',
+            transform: `translateZ(-${radius}px) rotateY(${-activeIndex * angleStep}deg)`,
+            width: '100%',
+            height: '100%',
+          }}
+        >
+          {reviews.map((rev, idx) => {
+            const isActive = idx === activeIndex;
+            const angle = idx * angleStep;
+            const diff = Math.min(
+              Math.abs(idx - activeIndex),
+              reviews.length - Math.abs(idx - activeIndex)
+            );
+
+            let cardOpacity = 0;
+            let scaleVal = 0.82;
+            let pointerEventsStyle: 'auto' | 'none' = 'none';
+
+            if (diff === 0) {
+              cardOpacity = 1;
+              scaleVal = 1.0;
+              pointerEventsStyle = 'auto';
+            } else if (diff === 1 || reviews.length === 2) {
+              cardOpacity = isMobile ? 0.15 : 0.40;
+              scaleVal = isMobile ? 0.65 : 0.85;
+              pointerEventsStyle = 'auto';
+            } else if (diff === 2) {
+              cardOpacity = 0.05;
+              scaleVal = 0.72;
+            }
+
+            const dragX = isActive ? dragOffset * 0.5 : 0;
+            const dragRotate = isActive ? dragOffset * 0.02 : 0;
+            const transitionStyle = (isActive && isDragging)
+              ? 'opacity 0.5s ease, border-color 0.5s ease, box-shadow 0.5s ease'
+              : 'transform 0.5s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.5s ease, border-color 0.5s ease, box-shadow 0.5s ease';
+
+            const handleCardClick = (e: React.MouseEvent) => {
+              if (isActive) {
+                // Do nothing
+              } else if (diff === 1 || reviews.length === 2) {
+                e.stopPropagation();
+                setActiveIndex(idx);
+              }
+            };
+
+            return (
+              <div
+                key={idx}
+                onClick={handleCardClick}
+                className="absolute inset-0 w-full h-[2700px] bg-transparent overflow-visible cursor-pointer select-none"
+                style={{
+                  transform: `rotateY(${angle}deg) translateZ(${isActive ? radius : radius - 140}px) scale(${scaleVal}) translateX(${dragX}px) rotate(${dragRotate}deg)`,
+                  backfaceVisibility: 'hidden',
+                  opacity: cardOpacity,
+                  visibility: diff > 1 ? 'hidden' : 'visible',
+                  pointerEvents: pointerEventsStyle,
+                  zIndex: isActive ? 41 : (diff === 1 ? 21 : 11),
+                  transition: transitionStyle,
+                  height: '270px'
+                }}
+              >
+                {/* blockquote for snip1157 design with top-aligned rating stars and text */}
+                <blockquote className="block rounded-2xl relative bg-[#fafafa] p-6 pt-5 pb-5 text-[10.5px] font-medium leading-[1.6em] italic text-[#333] h-[178px] border border-slate-200/50 shadow-xs flex flex-col justify-start overflow-hidden">
+                  {/* Left big quote mark */}
+                  <span className="absolute left-3 top-2 text-[42px] leading-none opacity-20 text-[#333] font-serif select-none" style={{ fontFamily: 'Georgia, serif' }}>“</span>
+                  
+                  {/* Rating Stars and Play/Pause control for autoplay progress sync */}
+                  <div className="flex justify-between items-center mb-1.5 w-full select-none relative z-10 shrink-0">
+                    <ActionStars rating={rev.rating || 5} isActive={isActive} />
+                    
+                    {isActive ? (
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setIsPlaying(!isPlaying);
+                        }}
+                        className="relative overflow-hidden px-2.5 py-1 bg-gradient-to-r from-sky-400 to-pink-500 border border-white/20 rounded-full text-[8px] font-black uppercase tracking-wider text-white shadow-sm cursor-pointer hover:scale-102 active:scale-98 transition-all pointer-events-auto select-none"
+                      >
+                        {isPlaying && (
+                          <div 
+                            className="absolute left-0 top-0 bottom-0 bg-gradient-to-r from-orange-500 to-amber-500 pointer-events-none"
+                            style={{ 
+                              width: `${progress}%`,
+                              transition: 'width 40ms linear'
+                            }}
+                          />
+                        )}
+                        
+                        <span className="relative z-10 flex items-center gap-1">
+                          {isPlaying ? (
+                            <>
+                              <Pause className="w-1.5 h-1.5 text-white fill-white shrink-0" />
+                              <span>Пауза</span>
+                            </>
+                          ) : (
+                            <>
+                              <Play className="w-1.5 h-1.5 text-white fill-white shrink-0 animate-pulse" />
+                              <span>Пуск</span>
+                            </>
+                          )}
+                        </span>
+                      </button>
+                    ) : (
+                      <span className="px-1.5 py-0.5 bg-slate-200/50 text-slate-500 rounded text-[7.5px] font-black uppercase tracking-wider font-mono">
+                        Отзыв
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Character by character sequence typing effect */}
+                  <div className="text-[#555] font-semibold text-[10px] sm:text-[10.5px] leading-relaxed italic pr-1 mt-1 flex-grow overflow-y-auto max-h-[115px] scrollbar-thin relative z-10">
+                    <TypewrittenQuote text={rev.text} isActive={isActive} />
+                  </div>
+
+                  {/* Right big quote mark */}
+                  <span className="absolute right-3 bottom-1.5 text-[42px] leading-none opacity-20 text-[#333] font-serif select-none" style={{ fontFamily: 'Georgia, serif' }}>”</span>
+                </blockquote>
+
+                {/* Downward triangle arrow matching the blockquote background with safe pixel overlap */}
+                <div className="absolute left-[35px] top-[177px] w-0 h-0 border-l-0 border-r-[25px] border-r-transparent border-t-[25px] border-t-[#fafafa] pointer-events-none z-10 shadow-xxs" />
+
+                {/* Profile face photo image from luxury Unsplash portrait stocks */}
+                <img 
+                  src={STOCK_AVATARS[idx % STOCK_AVATARS.length]} 
+                  alt={rev.name}
+                  referrerPolicy="no-referrer"
+                  className="absolute left-[15px] bottom-[5px] h-[72px] w-[72px] rounded-full border border-slate-200 object-cover shadow-sm select-none pointer-events-none"
+                />
+
+                {/* Author name and SMM-domain role */}
+                <div className="absolute bottom-[22px] left-[102px] pr-3 flex flex-col justify-center leading-tight truncate w-[160px] pointer-events-none">
+                  <h5 className="font-extrabold text-[#333] text-[11px] uppercase tracking-normal truncate mb-0.5">
+                    {rev.name}
+                  </h5>
+                  <span className="text-[8px] uppercase tracking-widest text-slate-400 font-bold font-mono">
+                    {roleForIdx(idx)}
+                  </span>
+                </div>
+              </div>
+            );
+          })}
         </div>
-      ))}
+      </div>
+
+      {/* Slide Dot Indicators */}
+      <div className="flex justify-center items-center gap-2 mt-[25px] pb-2">
+        {reviews.map((_, idx) => (
+          <button
+            key={idx}
+            onClick={() => setActiveIndex(idx)}
+            className={`h-2 rounded-full transition-all duration-300 cursor-pointer ${
+              idx === activeIndex 
+                ? 'w-6 bg-gradient-to-r from-orange-400 to-pink-500 shadow-xs' 
+                : 'w-2 bg-slate-200 hover:bg-slate-300'
+            }`}
+            aria-label={`Перейти к отзыву ${idx + 1}`}
+          />
+        ))}
+      </div>
+
+      {/* Button with multicolor gradient to open review form */}
+      <button 
+        onClick={onAddReviewClick}
+        className="mt-6 px-6 py-2.5 bg-multicolor-gradient hover:opacity-95 text-white text-[10.5px] uppercase font-black tracking-wider rounded-xl shadow-md border border-white/20 hover:-translate-y-0.5 active:translate-y-0 transition-all cursor-pointer"
+      >
+        Оставить отзыв ✍️
+      </button>
     </div>
   );
 }
@@ -239,6 +764,9 @@ export default function LandingPage({ onLogin, user, onUpdateUser, currentPath, 
     { name: "Dmitry Dev", rating: 5, text: "Настроил автопостинг и подключил свой API ключ — полет идеальный. Рад, что нашел такой классный сервис. Однозначно 5 звезд!" }
   ]);
   const [activeReviewIdx, setActiveReviewIdx] = useState(0);
+
+  // Advantages card active index state for dynamic tap-to-expand behavior on mobile & click
+  const [activeAdvIdx, setActiveAdvIdx] = useState<number | null>(null);
 
   // Testimonial submission form modal states (No registration required)
   const [showReviewModal, setShowReviewModal] = useState(false);
@@ -337,6 +865,16 @@ export default function LandingPage({ onLogin, user, onUpdateUser, currentPath, 
     };
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  useEffect(() => {
+    const handleGlobalClick = () => {
+      setActiveAdvIdx(null);
+    };
+    window.addEventListener('click', handleGlobalClick);
+    return () => {
+      window.removeEventListener('click', handleGlobalClick);
+    };
   }, []);
 
   const handleRunAiDemo = () => {
@@ -656,39 +1194,80 @@ export default function LandingPage({ onLogin, user, onUpdateUser, currentPath, 
                     <p className="text-slate-500 text-xs sm:text-xs">Наши ключевые ценности и инновационные преимущества, которые выводят ваш бизнес в топ.</p>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 pt-4">
+                  <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 pt-4 justify-items-center">
                     {[
                       {
-                        title: "Работа без VPN и Лимитов 🌐",
+                        title: "Работа без VPN и Лимитов",
+                        shortTitle: "Без Лимитов 🌐",
                         desc: "Прямой доступ ко всем ИИ-генераторам и API со скоростью света. Не нужно регистрировать зарубежные аккаунты или держать включенным прокси.",
-                        iconColor: "from-sky-450 to-blue-500",
-                        accentBg: "bg-sky-50/50"
+                        type: "city",
+                        emoji: "🌐",
+                        cta: "Начать"
                       },
                       {
-                        title: "Многозадачные AI-Ассистенты 🤖",
-                        desc: "20+ специализированных ИИ-агентов. Они знают формулу AIDA, умеют шутить, пишут яркие прогревы, сценарии и анализируют тренды.",
-                        iconColor: "from-pink-500 to-rose-500",
-                        accentBg: "bg-pink-50/40"
+                        title: "Многозадачные AI-Ассистенты",
+                        shortTitle: "20+ Агентов 🤖",
+                        desc: "Специализированные ИИ-агенты знают формулу AIDA, умеют шутить, пишут яркие прогревы, сценарии и анализируют тренды.",
+                        type: "ski",
+                        emoji: "🤖",
+                        cta: "Выбрать"
                       },
                       {
-                        title: "Безопасная Сделка Escrow 🛡",
-                        desc: "Наша биржа рекламы полностью защищает средства рекламодателей и блогеров. Выплата происходит только после автоматической проверки публикации.",
-                        iconColor: "from-orange-400 to-amber-500",
-                        accentBg: "bg-orange-50/50"
+                        title: "Безопасная Сделка Escrow",
+                        shortTitle: "Escrow Сделки 🛡",
+                        desc: "Наша биржа рекламы полностью защищает средства рекламодателей и блогеров. Выплата происходит после автоматической проверки публикации.",
+                        type: "beach",
+                        emoji: "🛡",
+                        cta: "Посмотреть"
                       },
                       {
-                        title: "ИИ Автопланирование 📡",
-                        desc: "Умное авторасписание самостоятельно определяет время публикации для получения пикового охвата. Вы отдыхаете — автоматика работает за вас.",
-                        iconColor: "from-purple-500 to-indigo-600",
-                        accentBg: "bg-purple-50/40"
+                        title: "ИИ Автопланирование",
+                        shortTitle: "Автопилот 📡",
+                        desc: "Умное авторасписание самостоятельно определяет время публикации для получения пикового охвата. Вы отдыхаете — автоматика работает.",
+                        type: "camping",
+                        emoji: "📡",
+                        cta: "Тест драйв"
                       }
                     ].map((adv, aIdx) => (
-                      <div key={aIdx} className={`p-6 rounded-3xl border border-white/50 backdrop-blur-md shadow-xxs ${adv.accentBg} flex flex-col justify-start space-y-3 transition-all duration-300 hover:scale-[1.02] hover:shadow-xs`}>
-                        <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${adv.iconColor} p-0.5 flex items-center justify-center text-white text-lg font-bold shadow-sm`}>
-                          ✦
+                      <div 
+                        key={aIdx} 
+                        className={`new-adv-card ${activeAdvIdx === aIdx ? 'is-active' : ''}`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setActiveAdvIdx(activeAdvIdx === aIdx ? null : aIdx);
+                        }}
+                      >
+                        {/* Rear Face - White background text content */}
+                        <div className="new-adv-face new-adv-face1">
+                          <div className="flex flex-col justify-between h-full pt-[52px] sm:pt-[60px]">
+                            <div className="space-y-1 my-auto">
+                              <h4 className="text-[11px] sm:text-[13px] font-black text-rose-600 uppercase tracking-tight leading-snug">
+                                {adv.shortTitle}
+                              </h4>
+                              <p className="text-[9.5px] sm:text-[11px] leading-relaxed text-slate-600 font-medium font-sans">
+                                {adv.desc}
+                              </p>
+                            </div>
+                            
+                            <button 
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setShowTelegramModal(true);
+                              }}
+                              className="w-full py-2 border border-pink-500 text-pink-600 hover:bg-pink-500 hover:text-white rounded-xl text-[9px] sm:text-[10px] font-black uppercase tracking-wider transition-all duration-200 cursor-pointer"
+                            >
+                              {adv.cta} ⚡️
+                            </button>
+                          </div>
                         </div>
-                        <h4 className="font-extrabold text-slate-800 text-xs sm:text-xs leading-snug">{adv.title}</h4>
-                        <p className="text-slate-500 text-[10.5px] leading-relaxed font-medium">{adv.desc}</p>
+
+                        {/* Front Face - Brand multi-gradient backdrop */}
+                        <div className="new-adv-face new-adv-face2">
+                          <span className="new-adv-emoji">{adv.emoji}</span>
+                          <h3 className="new-adv-title">
+                            {adv.title}
+                          </h3>
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -707,7 +1286,7 @@ export default function LandingPage({ onLogin, user, onUpdateUser, currentPath, 
                 </div>
 
                 {/* REVIEWS TESTIMONIAL CAROUSEL */}
-                <div id="reviews-carousel-section" className="pt-24 pb-12 max-w-4xl mx-auto px-4 space-y-8">
+                <div id="reviews-carousel-section" className="pt-24 pb-12 max-w-4xl mx-auto px-4 space-y-8 overflow-visible">
                   <div className="text-center max-w-md mx-auto space-y-3">
                     <span className="px-3 py-1 bg-pink-100 text-pink-850 rounded-full text-[10px] font-black uppercase tracking-widest border border-pink-200">ОТЗЫВЫ КЛИЕНТОВ</span>
                     {/* Headings with multicolor gradient */}
@@ -715,74 +1294,42 @@ export default function LandingPage({ onLogin, user, onUpdateUser, currentPath, 
                     <p className="text-slate-500 text-xs">Мнения профессиональных блогеров, маркетологов и авторов каналов о платформе ИИSMM.</p>
                   </div>
 
-                  {/* Active carousel card */}
-                  <div className="apple-liquid-glass p-8 rounded-3xl border border-slate-200/50 shadow-md relative overflow-hidden flex flex-col md:flex-row items-center gap-6">
-                    <div className="w-16 h-16 rounded-full bg-gradient-to-tr from-sky-400 via-pink-500 to-orange-400 p-0.5 shrink-0 flex items-center justify-center text-white text-3xl font-bold shadow-md animate-float">
-                      💬
-                    </div>
-                    <div className="space-y-3 flex-1 text-center md:text-left">
-                      <div className="flex justify-center md:justify-start gap-1">
-                        {Array.from({ length: reviews[activeReviewIdx].rating }).map((_, rIdx) => (
-                          <Star key={rIdx} className="w-4 h-4 text-orange-400 fill-orange-400 shrink-0" />
-                        ))}
-                      </div>
-                      <p className="text-slate-700 font-medium text-xs sm:text-xs leading-relaxed italic">
-                        "{reviews[activeReviewIdx].text}"
-                      </p>
-                      <h4 className="font-black text-slate-800 text-xs sm:text-xs tracking-tight uppercase">
-                        {reviews[activeReviewIdx].name}
-                      </h4>
-                    </div>
-                  </div>
-
-                  {/* Carousel Controls */}
-                  <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white/40 border border-slate-200/20 px-6 py-4 rounded-3xl">
-                    <div className="flex gap-1.5 justify-center">
-                      {reviews.map((_, dotIdx) => (
-                        <button 
-                          key={dotIdx} 
-                          onClick={() => setActiveReviewIdx(dotIdx)}
-                          className={`w-2.5 h-2.5 rounded-full transition-all duration-300 border border-slate-300/40 cursor-pointer ${
-                            dotIdx === activeReviewIdx ? 'bg-pink-500 w-6' : 'bg-slate-300 hover:bg-slate-400'
-                          }`}
-                        />
-                      ))}
-                    </div>
-
-                    {/* Button with multicolor gradient */}
-                    <button 
-                      onClick={() => setShowReviewModal(true)}
-                      className="px-5 py-2.5 bg-multicolor-gradient hover:opacity-95 text-white text-[10.5px] uppercase font-black tracking-wider rounded-xl shadow-md border border-white/20 hover:-translate-y-0.5 active:translate-y-0 transition-all cursor-pointer"
-                    >
-                      Оставить отзыв ✍️
-                    </button>
-                  </div>
+                  {/* 3D orbit carousel for reviews matching the AIAgent3DCarousel layout */}
+                  <Reviews3DCarousel 
+                    reviews={reviews} 
+                    onAddReviewClick={() => setShowReviewModal(true)} 
+                  />
                 </div>
 
-                {/* POPUP MODAL FOR LEAVING REVIEWS (Anonymous & No register needed) */}
+                {/* POPUP MODAL FOR LEAVING REVIEWS (Anonymous & No register needed, styled under Registration template with transparent blurred backdrop) */}
                 <AnimatePresence>
                   {showReviewModal && (
-                    <div className="fixed inset-0 z-55 flex items-center justify-center bg-slate-950/40 backdrop-blur-sm p-4">
+                    <div className="fixed inset-0 z-55 flex items-center justify-center p-4 bg-transparent backdrop-blur-[2px]">
                       <motion.div 
-                        initial={{ opacity: 0, scale: 0.96 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.96 }}
-                        className="apple-liquid-glass-heavy max-w-md w-full rounded-2xl p-6 border border-white/60 shadow-2xl relative space-y-4"
+                        initial={{ scale: 0.95, opacity: 0, y: 15 }}
+                        animate={{ scale: 1, opacity: 1, y: 0 }}
+                        exit={{ scale: 0.95, opacity: 0, y: 15 }}
+                        className="w-full max-w-sm apple-liquid-glass-heavy rounded-[28px] overflow-hidden shadow-2xl border border-white/60 p-1 bg-white/70 backdrop-blur-md relative"
                       >
-                        <button 
-                          onClick={() => setShowReviewModal(false)}
-                          className="absolute right-4 top-4 w-7 h-7 bg-slate-100 hover:bg-slate-200 rounded-full flex items-center justify-center text-slate-500 font-bold transition-all border border-slate-200/50 cursor-pointer text-xs"
-                        >
-                          ✕
-                        </button>
-
-                        <div className="space-y-1.5">
-                          {/* Heading with requested multicolor gradient */}
-                          <h3 className="text-sm font-black text-multicolor-gradient uppercase tracking-tight">Оставить отзыв без регистрации</h3>
-                          <p className="text-slate-500 text-[10.5px] font-medium leading-relaxed">Поделитесь вашим мнением о платформе ИИSMM. Ваше имя и текст будут видны моментально без какой-либо авторизации.</p>
+                        {/* Beautiful site-style brand gradient header matching registration look */}
+                        <div className="bg-gradient-to-r from-orange-400 via-pink-500 to-sky-450 p-5 rounded-[24px] text-white relative shadow-md border border-white/25 text-center flex flex-col items-center">
+                          <button 
+                            type="button"
+                            onClick={() => setShowReviewModal(false)}
+                            className="absolute right-4 top-4 w-6 h-6 bg-white/20 hover:bg-white/35 text-white rounded-full flex items-center justify-center font-bold transition-all border border-white/10 cursor-pointer text-[10px]"
+                          >
+                            ✕
+                          </button>
+                          
+                          <div className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center transition-all hover:rotate-6 shadow-inner shrink-0 mb-2">
+                            <span className="text-base">✨</span>
+                          </div>
+                          
+                          <h3 className="text-xs font-black uppercase tracking-wider text-white">Оставить отзыв без регистрации</h3>
+                          <p className="text-white/85 text-[9.5px] font-semibold leading-relaxed mt-1">Поделитесь вашим мнением о платформе ИИSMM. Ваш отзыв появится на главном экране в реальном времени.</p>
                         </div>
 
-                        <form onSubmit={handleReviewSubmit} className="space-y-3 pt-1">
+                        <form onSubmit={handleReviewSubmit} className="p-4 space-y-3 pt-3">
                           <div className="space-y-1">
                             <label className="text-[10px] font-black text-slate-600 uppercase tracking-wider">Имя / Никнейм в Telegram:</label>
                             <input 
@@ -828,21 +1375,24 @@ export default function LandingPage({ onLogin, user, onUpdateUser, currentPath, 
                           </div>
 
                           <div className="space-y-1">
-                            <label className="text-[10px] font-black text-slate-600 uppercase tracking-wider">Текст вашего отзыва:</label>
+                            <div className="flex justify-between items-center mb-0.5">
+                              <label className="text-[10px] font-black text-slate-600 uppercase tracking-wider">Текст вашего отзыва:</label>
+                              <span className="text-[9px] font-bold text-slate-400 font-mono">{modalText.length} / 120 лимит</span>
+                            </div>
                             <textarea 
                               rows={3}
                               value={modalText}
                               onChange={(e) => setModalText(e.target.value)}
-                              placeholder="Пожалуйста, расскажите об опыте запуска постов, работы с ИИ-агентами или биржей сделок..."
+                              placeholder="Пожалуйста, расскажите об опыте запуска постов..."
                               className="w-full text-xs p-3 bg-white/75 border border-slate-200/80 rounded-xl focus:ring-1 focus:ring-pink-500 focus:outline-none focus:border-pink-500/80 shadow-xxs font-medium"
-                              maxLength={350}
+                              maxLength={120}
                               required
                             />
                           </div>
 
                           <button 
                             type="submit"
-                            className="w-full py-3 bg-multicolor-gradient hover:opacity-95 text-white font-black text-[11px] uppercase rounded-xl tracking-wider shadow-md transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 cursor-pointer"
+                            className="w-full py-3 bg-gradient-to-r from-orange-400 via-pink-500 to-sky-450 hover:opacity-95 text-white font-black text-[11px] uppercase rounded-xl tracking-wider shadow-md transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 cursor-pointer"
                           >
                             Опубликовать отзыв 🚀
                           </button>
