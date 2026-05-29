@@ -924,14 +924,14 @@ function ConceptSandbox() {
                   onClick={() => setSelectedBlogger(char.id)}
                   className={`p-3 rounded-2xl border text-left transition-all relative overflow-hidden cursor-pointer flex flex-col justify-between h-28 ${
                     selectedBlogger === char.id
-                      ? 'bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 border-slate-950 text-white shadow-md'
+                      ? 'bg-gradient-to-br from-sky-50 via-pink-50 to-orange-50 border-pink-300 text-slate-900 shadow-md scale-[1.02]'
                       : 'bg-white/80 border-slate-200/50 hover:border-slate-300 text-slate-700'
                   }`}
                 >
                   <div className="flex justify-between items-start w-full">
                     <span className="text-xl">{char.emoji}</span>
                     {selectedBlogger === char.id && (
-                      <span className="p-0.5 bg-pink-500 rounded-full">
+                      <span className="p-0.5 bg-[linear-gradient(to_right,#38bdf8,#f472b6,#fb923c)] rounded-full">
                         <Check className="w-2.5 h-2.5 text-white" />
                       </span>
                     )}
@@ -939,7 +939,7 @@ function ConceptSandbox() {
                   <div className="leading-none space-y-0.5">
                     <span className="text-[10px] font-black block leading-none">{char.name}</span>
                     <span className={`text-[8px] font-bold block ${
-                      selectedBlogger === char.id ? 'text-pink-400' : 'text-slate-400'
+                      selectedBlogger === char.id ? 'text-pink-600' : 'text-slate-400'
                     }`}>{char.role.split(' ')[0]}</span>
                   </div>
                 </button>
@@ -1010,48 +1010,48 @@ function ConceptSandbox() {
         {/* Right iPhone Creative Display */}
         <div className="lg:col-span-6 flex justify-center">
           {/* Beautiful iPhone mockup container */}
-          <div className="w-full max-w-[280px] bg-slate-950 border-[5px] border-slate-900 rounded-[36px] shadow-2xl relative overflow-hidden h-[390px] flex flex-col justify-between text-white border-b-[8px]">
+          <div className="w-full max-w-[280px] bg-white border-[5px] border-slate-200 rounded-[36px] shadow-2xl relative overflow-hidden h-[390px] flex flex-col justify-between text-slate-800 border-b-[8px] border-slate-300">
             {/* Dynamic notch bar */}
             <div className="absolute top-0 inset-x-0 h-5 flex justify-center z-10">
-              <div className="w-20 h-4 bg-slate-900 rounded-b-xl flex items-center justify-center">
-                <span className="w-1.5 h-1.5 rounded-full bg-slate-800" />
+              <div className="w-20 h-4 bg-slate-100 rounded-b-xl flex items-center justify-center">
+                <span className="w-1.5 h-1.5 rounded-full bg-slate-200" />
               </div>
             </div>
 
             {/* Simulated iPhone Header */}
-            <div className="px-4 pt-6 pb-2 border-b border-white/5 bg-slate-900/60 backdrop-blur-md flex items-center gap-2">
+            <div className="px-4 pt-6 pb-2 border-b border-slate-100 bg-white/60 backdrop-blur-md flex items-center gap-2">
               <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-pink-400 to-rose-500 flex items-center justify-center text-xs">
                 {characters.find(c => c.id === selectedBlogger)?.emoji || '🌸'}
               </div>
               <div className="leading-none">
-                <span className="text-[10px] font-black block text-slate-100 leading-none">
+                <span className="text-[10px] font-black block text-slate-800 leading-none">
                   {characters.find(c => c.id === selectedBlogger)?.name || 'Марина'}
                 </span>
-                <span className="text-[7px] text-slate-400 block font-bold leading-none font-mono">Превью интеграции</span>
+                <span className="text-[7px] text-slate-400 block font-bold leading-none font-mono font-semibold">Превью интеграции</span>
               </div>
             </div>
 
             {/* Scrollable feed body */}
-            <div className="flex-1 p-3.5 space-y-3 bg-slate-925 relative overflow-y-auto scrollbar-none flex flex-col">
+            <div className="flex-1 p-3.5 space-y-3 bg-slate-50 relative overflow-y-auto scrollbar-none flex flex-col">
               {isGeneratingAngle ? (
-                <div className="absolute inset-0 bg-slate-900/80 backdrop-blur-xs flex flex-col items-center justify-center gap-3">
+                <div className="absolute inset-0 bg-white/90 backdrop-blur-xs flex flex-col items-center justify-center gap-3">
                   <div className="w-8 h-8 rounded-full border-2 border-pink-500 border-t-transparent animate-spin" />
-                  <span className="text-[9px] uppercase tracking-widest text-slate-400 font-mono animate-pulse font-bold">ИИ генерирует адаптацию...</span>
+                  <span className="text-[9px] uppercase tracking-widest text-slate-500 font-mono animate-pulse font-bold">ИИ генерирует адаптацию...</span>
                 </div>
               ) : generatedCreative ? (
                 <div className="space-y-2 flex-grow flex flex-col">
                   <div className="flex justify-between items-center shrink-0">
                     {isAiMode ? (
-                      <span className="inline-block text-[8px] bg-sky-500/15 text-sky-400 border border-sky-400/25 px-2 py-0.5 rounded-full font-mono font-bold leading-none">
+                      <span className="inline-block text-[8px] bg-sky-500/15 text-sky-700 border border-sky-450/25 px-2 py-0.5 rounded-full font-mono font-bold leading-none">
                         ⚡ ИИ Активен (Gemini)
                       </span>
                     ) : (
-                      <span className="inline-block text-[8px] bg-emerald-500/15 text-emerald-400 border border-emerald-400/25 px-2 py-0.5 rounded-full font-mono font-bold leading-none animate-pulse">
+                      <span className="inline-block text-[8px] bg-[linear-gradient(to_right,#38bdf8,#f472b6,#fb923c,#f472b6,#38bdf8)] text-white px-2 py-0.5 rounded-full font-mono font-bold leading-none animate-pulse">
                         🟢 Симуляция (0 токенов)
                       </span>
                     )}
                   </div>
-                  <div className="p-3 bg-white/5 border border-white/10 rounded-2xl space-y-2 leading-relaxed text-[11px] font-medium text-slate-200 flex-grow">
+                  <div className="p-3 bg-white border border-slate-100 rounded-2xl space-y-2 leading-relaxed text-[11px] font-medium text-slate-700 flex-grow shadow-xs">
                     <MarkdownRenderer content={generatedCreative} />
                   </div>
                 </div>
@@ -1063,9 +1063,9 @@ function ConceptSandbox() {
             </div>
 
             {/* Phone bottom toolbar */}
-            <div className="p-2 border-t border-white/5 bg-slate-900/80 flex items-center justify-between text-[8px] tracking-wide text-slate-400 uppercase font-mono font-bold">
+            <div className="p-2 border-t border-slate-100 bg-white/95 flex items-center justify-between text-[8px] tracking-wide text-slate-500 uppercase font-mono font-bold">
               <span>❤️ 2.4k лайков</span>
-              <span className="px-2 py-0.5 rounded bg-pink-500 text-white font-black">Разместить</span>
+              <span className="px-2 py-0.5 rounded bg-[linear-gradient(to_right,#38bdf8,#f472b6,#fb923c,#f472b6,#38bdf8)] text-white font-black cursor-pointer hover:opacity-95 transition-opacity">Разместить</span>
             </div>
           </div>
         </div>
