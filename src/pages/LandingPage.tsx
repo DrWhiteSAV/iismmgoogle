@@ -16,6 +16,7 @@ import FeaturesCarousel from '../components/FeaturesCarousel';
 import BlogPage from './BlogPage';
 import AIPage from './AIPage';
 import { MarkdownRenderer } from '../components/MarkdownRenderer';
+import AIEnginesMarketplace from '../components/AIEnginesMarketplace';
 
 // Reusable Multi-Gradient Tariff Cards layout with sequential loading animation
 function TariffCards({ onAction }: { onAction: () => void }) {
@@ -1597,7 +1598,7 @@ export default function LandingPage({ onLogin, user, onUpdateUser, currentPath, 
                   <div className="text-center max-w-md mx-auto space-y-3">
                     <span className="px-3 py-1 bg-pink-100 text-pink-850 rounded-full text-[10px] font-black uppercase tracking-widest border border-pink-200">ОТЗЫВЫ КЛИЕНТОВ</span>
                     {/* Headings with multicolor gradient */}
-                    <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-multicolor-gradient uppercase">Что говорят SMM эксперты</h2>
+                    <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-multicolor-gradient uppercase">What говорит SMM эксперты</h2>
                     <p className="text-slate-500 text-xs">Мнения профессиональных блогеров, маркетологов и авторов каналов о платформе ИИSMM.</p>
                   </div>
 
@@ -1638,7 +1639,7 @@ export default function LandingPage({ onLogin, user, onUpdateUser, currentPath, 
 
                         <form onSubmit={handleReviewSubmit} className="p-4 space-y-3 pt-3">
                           <div className="space-y-1">
-                            <label className="text-[10px] font-black text-slate-600 uppercase tracking-wider">Имя / Никнейм в Telegram:</label>
+                            <label className="text-[10px] font-black text-slate-600 uppercase tracking-wider block">Имя / Никнейм в Telegram:</label>
                             <input 
                               type="text"
                               value={modalName}
@@ -1670,7 +1671,7 @@ export default function LandingPage({ onLogin, user, onUpdateUser, currentPath, 
                               <select 
                                 value={modalAvatar} 
                                 onChange={(e) => setModalAvatar(e.target.value)}
-                                className="w-full text-xs p-3 bg-white/75 border border-slate-200/80 rounded-xl focus:ring-1 focus:ring-pink-500 focus:outline-none font-bold text-slate-700 cursor-pointer shadow-xxs"
+                                className="w-full text-xs p-3 bg-white/75 border border-slate-200/80 rounded-xl focus:ring-1 focus:ring-pink-300 focus:outline-none font-bold text-slate-700 cursor-pointer shadow-xxs"
                               >
                                 <option value="👤">👤 Эксперт</option>
                                 <option value="🤖">🤖 ИИ Агент</option>
@@ -1712,191 +1713,68 @@ export default function LandingPage({ onLogin, user, onUpdateUser, currentPath, 
           )}
 
           {/* INFORMATIVE SECTION 2: НАШ БЛОГ */}
-            {activeTab === 'blog' && (
-              <BlogPage 
-                currentPath={currentPath}
-                onNavigate={onNavigate}
-                onLogin={onLogin}
-                isLoggedIn={false}
-              />
-            )}
+          {activeTab === 'blog' && (
+            <BlogPage 
+              currentPath={currentPath}
+              onNavigate={onNavigate}
+              onLogin={onLogin}
+              isLoggedIn={false}
+            />
+          )}
 
-            {/* INFORMATIVE SECTION 3: AI АССИСТЕНТЫ */}
-            {activeTab === 'ai_assistants' && (
-              <AIPage />
-            )}
+          {/* INFORMATIVE SECTION 3: AI АССИСТЕНТЫ */}
+          {activeTab === 'ai_assistants' && (
+            <AIPage />
+          )}
 
-            {/* INFORMATIVE SECTION: ИИ БИРЖА (MARKET EXCHANGE) */}
-            {activeTab === 'market_exchange' && (
-              <div className="space-y-8 py-4">
-                <div className="text-center max-w-2xl mx-auto space-y-3">
-                  <span className="px-3 py-1 bg-orange-100 text-orange-900 rounded-full text-[10px] font-black uppercase border border-orange-200">
-                    БЕЗОПАСНАЯ ИИ-БИРЖА РЕКЛАМЫ (ESCROW)
-                  </span>
-                  <h2 className="text-3xl font-extrabold tracking-tight text-gradient-header">
-                    Монетизируйте свои каналы или закупайте интеграции в 1 клик
-                  </h2>
-                  <p className="text-slate-500 text-xs">
-                    Автоматизированная биржа с эскроу-гарантом <a href="https://t.me/iismmAIbot" target="_blank" rel="noopener noreferrer" className="text-pink-600 hover:text-pink-700 underline font-semibold">@iismmAIbot</a>: бот сам находит посты на площадках, проверяет удержание в топе 24/48 часов и мгновенно выплачивает деньги.
+          {/* INFORMATIVE SECTION: ИИ БИРЖА (MARKET EXCHANGE) */}
+          {activeTab === 'market_exchange' && (
+            <div className="space-y-8 py-4">
+              <div className="text-center max-w-2xl mx-auto space-y-3">
+                <span className="px-3 py-1 bg-orange-100 text-orange-900 rounded-full text-[10px] font-black uppercase border border-orange-200">
+                  БЕЗОПАСНАЯ ИИ-БИРЖА РЕКЛАМЫ (ESCROW)
+                </span>
+                <h2 className="text-3xl font-extrabold tracking-tight text-gradient-header">
+                  Монетизируйте свои каналы или закупайте интеграции в 1 клик
+                </h2>
+                <p className="text-slate-500 text-xs">
+                  Автоматизированная биржа с эскроу-гарантом <a href="https://t.me/iismmAIbot" target="_blank" rel="noopener noreferrer" className="text-pink-600 hover:text-pink-700 underline font-semibold">@iismmAIbot</a>: бот сам находит посты на площадках, проверяет удержание в топе 24/48 часов и мгновенно выплачивает деньги.
+                </p>
+              </div>
+
+              {/* 3 Columns of features */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="apple-liquid-glass rounded-2xl p-5 bg-white/40 space-y-3 shadow-xl hover:scale-102 transition-all duration-300">
+                  <span className="text-xl">📢</span>
+                  <h4 className="font-extrabold text-slate-800 text-sm">Владельцам каналов</h4>
+                  <p className="text-xs text-slate-600 leading-relaxed">
+                    Выставляйте свои каналы на биржу, задавайте желаемый ценник за пост и средний охват. Сделки полностью защищены эскроу.
                   </p>
                 </div>
-
-                {/* 3 Columns of features */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <div className="apple-liquid-glass rounded-2xl p-5 bg-white/40 space-y-3 shadow-xl hover:scale-102 transition-all duration-300">
-                    <span className="text-xl">📢</span>
-                    <h4 className="font-extrabold text-slate-800 text-sm">Владельцам каналов</h4>
-                    <p className="text-xs text-slate-600 leading-relaxed">
-                      Выставляйте свои каналы на биржу, задавайте желаемый ценник за пост и средний охват. Сделки полностью защищены эскроу.
-                    </p>
-                  </div>
-                  <div className="apple-liquid-glass rounded-2xl p-5 bg-white/40 space-y-3 shadow-xl hover:scale-102 transition-all duration-300">
-                    <span className="text-xl">💼</span>
-                    <h4 className="font-extrabold text-slate-800 text-sm">Заказчикам рекламы</h4>
-                    <p className="text-xs text-slate-600 leading-relaxed">
-                      Выбирайте проверенные площадки из каталога и резервируйте средства. Если владелец не опубликует пост, средства вернутся на баланс автоматически.
-                    </p>
-                  </div>
-                  <div className="apple-liquid-glass rounded-2xl p-5 bg-white/40 space-y-3 shadow-xl hover:scale-102 transition-all duration-300">
-                    <span className="text-xl">🤖</span>
-                    <h4 className="font-extrabold text-slate-800 text-sm">
-                      Авто-контроль <a href="https://t.me/iismmAIbot" target="_blank" rel="noopener noreferrer" className="text-pink-600 hover:text-pink-700 underline">@iismmAIbot</a>
-                    </h4>
-                    <p className="text-xs text-slate-600 leading-relaxed">
-                      Никакого ручного контроля! ИИ-аудитор проверяет ссылку в закрепе, статистику кликов и защищает ваши рекламные вложения 24/7.
-                    </p>
-                  </div>
+                <div className="apple-liquid-glass rounded-2xl p-5 bg-white/40 space-y-3 shadow-xl hover:scale-102 transition-all duration-300">
+                  <span className="text-xl">💼</span>
+                  <h4 className="font-extrabold text-slate-800 text-sm">Заказчикам рекламы</h4>
+                  <p className="text-xs text-slate-600 leading-relaxed">
+                    Выбирайте проверенные площадки из каталога и резервируйте средства. Если владелец не опубликует пост, средства вернутся на баланс автоматически.
+                  </p>
                 </div>
-
-                {/* Interactive Simulation Panel */}
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 pt-4">
-                  <div className="lg:col-span-6 bg-gradient-to-br from-rose-50/70 to-orange-50/70 backdrop-blur-xl border border-white p-6 rounded-3xl shadow-xl space-y-4">
-                    <div className="flex items-center gap-2">
-                      <span className="p-2 bg-orange-100 rounded-lg text-orange-850 text-xs font-bold">ИНТЕРАКТИВ</span>
-                      <h3 className="font-extrabold text-slate-800 text-sm">Симулятор подачи канала на Биржу</h3>
-                    </div>
-                    
-                    <p className="text-xs text-slate-500">
-                      Попробуйте подать объявление, чтобы протестировать, как устроен наш интерфейс.
-                    </p>
-
-                    <form 
-                      onSubmit={(e) => {
-                        e.preventDefault();
-                        if (!simName.trim()) return;
-                        setSimSubmitted(true);
-                      }}
-                      className="space-y-3 text-xs"
-                    >
-                      <div className="space-y-1">
-                        <label className="block text-slate-600 font-bold uppercase text-[9px]">Название рекламного канала:</label>
-                        <input
-                          type="text"
-                          value={simName}
-                          onChange={(e) => setSimName(e.target.value)}
-                          className="w-full bg-white/80 border border-slate-200/80 p-2.5 rounded-xl text-xs"
-                        />
-                      </div>
-                      <div className="grid grid-cols-2 gap-2">
-                        <div className="space-y-1">
-                          <label className="block text-slate-600 font-bold uppercase text-[9px]">Цена за пост (₽):</label>
-                          <input
-                            type="number"
-                            value={simPrice}
-                            onChange={(e) => setSimPrice(e.target.value)}
-                            className="w-full bg-white/80 border border-slate-200/80 p-2.5 rounded-xl text-xs"
-                          />
-                        </div>
-                        <div className="space-y-1">
-                          <label className="block text-slate-600 font-bold uppercase text-[9px]">Средний охват:</label>
-                          <input
-                            type="number"
-                            value={simViews}
-                            onChange={(e) => setSimViews(Number(e.target.value))}
-                            className="w-full bg-white/80 border border-slate-200/80 p-2.5 rounded-xl text-xs"
-                          />
-                        </div>
-                      </div>
-
-                      <button
-                        type="submit"
-                        className="w-full py-2.5 bg-gradient-to-r from-orange-400 to-pink-500 hover:from-orange-500 hover:to-pink-600 text-white font-black text-[10px] rounded-xl uppercase shadow-xs cursor-pointer flex items-center justify-center gap-1 transition-all"
-                      >
-                        Подать объявление 🚀
-                      </button>
-                    </form>
-
-                    <AnimatePresence>
-                      {simSubmitted && (
-                        <motion.div
-                          initial={{ opacity: 0, y: 10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: 10 }}
-                          className="p-3 bg-orange-50/80 rounded-xl border border-orange-200/50 text-xs text-orange-950 space-y-1"
-                        >
-                          <p className="font-bold flex items-center gap-1">
-                            <span>🎉</span> Канал добавлен на Биржу!
-                          </p>
-                          <p className="text-[10px] text-slate-550 leading-snug">
-                            Канал {"\"" + simName + "\""} успешно добавлен в каталог предложений платформы.
-                          </p>
-                          <button
-                            type="button"
-                            onClick={() => setSimSubmitted(false)}
-                            className="text-[10px] text-pink-600 font-bold underline cursor-pointer"
-                          >
-                            Изменить данные
-                          </button>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </div>
-
-                  <div className="lg:col-span-6 bg-gradient-to-br from-orange-50/70 to-pink-50/70 backdrop-blur-xl border border-white p-6 rounded-3xl shadow-xl space-y-4 flex flex-col justify-between">
-                    <div className="space-y-4">
-                      <div className="flex items-center gap-2">
-                        <span className="p-2 bg-orange-100 rounded-lg text-orange-850 text-xs font-bold">АКТУАЛЬНО</span>
-                        <h3 className="font-extrabold text-slate-800 text-sm">Симулятор отклика на промо-заказы</h3>
-                      </div>
-                      <p className="text-xs text-slate-500">
-                        Выполняйте сторонние рекламные заказы в 1 клик через ИИSMM и получайте мгновенные зачисления на ваш баланс.
-                      </p>
-
-                      <div className="p-4 bg-white/80 rounded-2xl border border-orange-100/50 space-y-3">
-                        <div className="flex justify-between items-start">
-                          <span className="px-2 py-0.5 rounded text-[10px] font-extrabold uppercase bg-orange-100 text-orange-850">
-                            АКТИВНЫЙ РЕКЛАМНЫЙ ЗАКАЗ
-                          </span>
-                          <span className="text-xs font-black text-rose-500">
-                            +450 ₽
-                          </span>
-                        </div>
-                        
-                        <div className="text-xs">
-                          <span className="font-bold text-slate-800 block">Продвижение курсов Академии Маркетинга</span>
-                          <p className="text-[10px] text-slate-500 italic mt-1">"🚀 СТАНЬ ИИ-КОПИРАЙТЕРОМ ЗА 2 НЕДЕЛИ! Запишись прямо сейчас!"</p>
-                        </div>
-
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setSimEarning(prev => prev + 450);
-                          }}
-                          className="w-full py-2.5 bg-gradient-to-r from-orange-400 to-pink-500 hover:scale-101 text-white font-black text-[10px] rounded-xl uppercase shadow-xs cursor-pointer flex items-center justify-center gap-1 transition-all"
-                        >
-                          <span>Откликнуться и Разместить пост</span>
-                        </button>
-                      </div>
-                    </div>
-
-                    <div className="p-3 bg-white/40 border rounded-xl text-center text-xs space-y-1">
-                      <span className="text-[10px] text-slate-400 block font-bold uppercase">Ваш демо-заработок в симуляторе</span>
-                      <span className="text-xl font-black text-slate-800 font-mono">{simEarning} ₽</span>
-                    </div>
-                  </div>
+                <div className="apple-liquid-glass rounded-2xl p-5 bg-white/40 space-y-3 shadow-xl hover:scale-102 transition-all duration-300">
+                  <span className="text-xl">🤖</span>
+                  <h4 className="font-extrabold text-slate-800 text-sm">
+                    Авто-контроль <a href="https://t.me/iismmAIbot" target="_blank" rel="noopener noreferrer" className="text-pink-600 hover:text-pink-700 underline">@iismmAIbot</a>
+                  </h4>
+                  <p className="text-xs text-slate-600 leading-relaxed">
+                    Никакого ручного контроля! ИИ-аудитор проверяет ссылку в закрепе, статистику кликов и защищает ваши рекламные вложения 24/7.
+                  </p>
                 </div>
               </div>
-            )}
+
+              {/* Brand New 5 Interactive AI Concepts Suite */}
+              <div className="pt-4">
+                <AIEnginesMarketplace />
+              </div>
+            </div>
+          )}
 
             {/* INFORMATIVE SECTION: ЖИВОЙ SMM ЧАТ (LIVE CHAT) */}
             {activeTab === 'chat' && (
