@@ -15,6 +15,7 @@ import IntroLiveSimWidget from '../components/IntroLiveSimWidget';
 import FeaturesCarousel from '../components/FeaturesCarousel';
 import BlogPage from './BlogPage';
 import AIPage from './AIPage';
+import { MarkdownRenderer } from '../components/MarkdownRenderer';
 
 // Reusable Multi-Gradient Tariff Cards layout with sequential loading animation
 function TariffCards({ onAction }: { onAction: () => void }) {
@@ -711,8 +712,314 @@ export function renderWithBold(text: string): React.ReactNode {
   return parts.length > 0 ? <>{parts}</> : text;
 }
 
+interface MessageItem {
+  id: string;
+  senderKey: string;
+  text: string;
+  timestamp: string;
+  replyTo?: {
+    name: string;
+    role: string;
+    text: string;
+  };
+}
+
+const CHAT_PARTICIPANTS: Record<string, { name: string; role: string; avatar: string; color: string; status: string }> = {
+  alex: { name: "Алексей С.", role: "Копирайтер", avatar: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=80&fit=crop&q=80", color: "from-sky-500 to-sky-600 bg-sky-50 text-sky-700 border-sky-200", status: "В сети" },
+  marina: { name: "Марина К.", role: "Канал-Админ", avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80&fit=crop&q=80", color: "from-emerald-500 to-emerald-600 bg-emerald-50 text-emerald-700 border-emerald-200", status: "Печатает..." },
+  dmitry: { name: "Дмитрий В.", role: "Рекламодатель", avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&fit=crop&q=80", color: "from-rose-500 to-rose-600 bg-rose-50 text-rose-700 border-rose-200", status: "В сети" },
+  olga: { name: "Ольга А.", role: "ИИ Модератор", avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=80&fit=crop&q=80", color: "from-indigo-500 to-indigo-600 bg-indigo-50 text-indigo-700 border-indigo-200", status: "В сети" },
+  sergey: { name: "Сергей П.", role: "Закупщик", avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80&fit=crop&q=80", color: "from-amber-500 to-amber-600 bg-amber-50 text-amber-700 border-amber-200", status: "В сети" },
+  elena: { name: "Елена Р.", role: "Бьюти-Блогер", avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=80&fit=crop&q=80", color: "from-pink-500 to-pink-600 bg-pink-50 text-pink-700 border-pink-200", status: "Печатает..." },
+  ivan: { name: "Иван @shishkarnem", role: "Основатель", avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=80&fit=crop&q=80", color: "from-purple-500 to-purple-600 bg-purple-50 text-purple-700 border-purple-200", status: "В сети" },
+  anna: { name: "Анна М. 🤡", role: "Мультипостинг", avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=80&fit=crop&q=80", color: "from-teal-500 to-teal-600 bg-teal-50 text-teal-700 border-teal-200", status: "В сети" },
+  vlad: { name: "Влад Т.", role: "Продюсер", avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80&fit=crop&q=80", color: "from-orange-500 to-orange-600 bg-orange-50 text-orange-700 border-orange-200", status: "В сети" },
+  katerina: { name: "Екатерина Д.", role: "Дизайнер", avatar: "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=80&fit=crop&q=80", color: "from-cyan-500 to-cyan-600 bg-cyan-50 text-cyan-700 border-cyan-200", status: "В сети" },
+};
+
+const CHAT_SCRIPTS: Array<{ senderKey: string; text: string; isReply?: boolean }> = [
+  { senderKey: "marina", text: "Привет всей SMM тусовке! Как дела с утренним постингом сегодня?" },
+  { senderKey: "alex", text: "Да вот, настраиваю автопостинг через бота на всю неделю вперед." },
+  { senderKey: "dmitry", text: "О, а сколько каналов подключил? Слышал, на фри-тарифе дают аж 3 слота.", isReply: true },
+  { senderKey: "elena", text: "Привет! А у меня бьюти-блог, и я просто обожаю авто-наложение вотермарок!" },
+  { senderKey: "katerina", text: "Согласна, вотермарки спасают от воровства авторских фоток." },
+  { senderKey: "anna", text: "А я вообще ворую и рерайчу через ИИ! 🤡 И всё уникально получается, охваты летят!", isReply: true },
+  { senderKey: "sergey", text: "Анна, вот из-за таких уникализаторов мне как закупщику приходится тщательно каналы собирать 😂" },
+  { senderKey: "olga", text: "Не переживайте, наш бот-модератор сразу вычищает неуникальный спам из комментариев." },
+  { senderKey: "vlad", text: "Кстати про закупку. Кто-то тестировал ИИ Биржу с безопасными сделками?", isReply: true },
+  { senderKey: "marina", text: "Да! Деньги морозятся на балансе, пока админ не выдаст пост и бот не проверит топ-удержание." },
+  { senderKey: "dmitry", text: "Идеальное решение для рекламодателей, никакого кидалова в ЛС." },
+  { senderKey: "sergey", text: "И админам спокойно — выплаты зачисляются на внутренний баланс за 10 минут.", isReply: true },
+  { senderKey: "ivan", text: "Привет, команда! Рад видеть такое живое обсуждение. Готовим большое обновление с генерацией Stories." },
+  { senderKey: "elena", text: "Ооо, Иван, Reels и Stories — это моя главная боль! Очень ждём шаблоны." },
+  { senderKey: "alex", text: "А ИИ-копирайтер будет адаптирован под новые форматы историй?", isReply: true },
+  { senderKey: "ivan", text: "Да, добавим специальные промты: 'Прогрев', 'Интрига', 'Продажа' и 'Игры с подписчиками'." },
+  { senderKey: "vlad", text: "Шикарно! Я сейчас все прогревы пишу исключительно через формулы PAS и AIDA в ИИSMM." },
+  { senderKey: "katerina", text: "Ребята, а у всех картинки быстро грузятся в боте? На прошлой неделе слегка лагало.", isReply: true },
+  { senderKey: "ivan", text: "Катя, мы обновили сервера, переехали ближе и настроили CDN, теперь летает буквально за сотые секунды." },
+  { senderKey: "olga", text: "Да, я заметила, модерация картинок теперь моментально отрабатывает." },
+  { senderKey: "marina", text: "Кстати, а вы знали, что за квизы в Академии дают реальные ИИрки?", isReply: true },
+  { senderKey: "anna", text: "Серьёзно? А я думала это просто для проверки знаний 🤡 Побежала сдавать тест!" },
+  { senderKey: "vlad", text: "Сдал вчера квиз по маркировке ОРД, зачислили 100 000 ИИрок. Сразу распределил на автопосты." },
+  { senderKey: "sergey", text: "Маркировка ОРД — это вообще ад. Бот действительно делает её автоматом?", isReply: true },
+  { senderKey: "marina", text: "Да, при публикации выбираешь чекбокс 'Промаркировать', вводишь токен рекламы, и он сам крепит плашку." },
+  { senderKey: "dmitry", text: "Очень законно и без лишних кликов на сторонних сайтах." },
+  { senderKey: "elena", text: "Девочки, а кто-нибудь создавал папки взаимного пиара?", isReply: true },
+  { senderKey: "vlad", text: "Я создавал папку для крипто-каналов. Собрали 8 участников, залили трафик и выросли суммарно на 4к подписчиков." },
+  { senderKey: "sergey", text: "Папки пиара — бесплатный инструмент, а окупаемость космическая." },
+  { senderKey: "marina", text: "А как туда попасть? Есть какие-то требования по просмотрам?", isReply: true },
+  { senderKey: "vlad", text: "Создатель папки сам ставит фильтры. Можно ограничить от 500 глаз на пост, к примеру." },
+  { senderKey: "alex", text: "Я как копирайтер пишу тексты для всей папки взаимного пиара, чтобы стиль был одинаковый." },
+  { senderKey: "anna", text: "А я просто скопирую твой текст и ИИ перепишет под Клоуна-убийцу 🤡", isReply: true },
+  { senderKey: "katerina", text: "Анна, пощади подписчиков! И так лента переполнена креативом." },
+  { senderKey: "olga", text: "Модераторы следят за качеством юмора, так что сильно не шалите!" },
+  { senderKey: "ivan", text: "На самом деле ИИ отлично понимает сарказм, можете потестировать температуру генерации в промте.", isReply: true },
+  { senderKey: "alex", text: "Обычно ставлю температуру 0.7 для обычных постов и 0.95, если нужно накреативить безумие." },
+  { senderKey: "dmitry", text: "Я для бизнес-постов ставлю строго 0.2, чтобы факты не плыли." },
+  { senderKey: "sergey", text: "О, это полезная фишка, а то вечно ИИ придумывает несуществующие промокоды 😂", isReply: true },
+  { senderKey: "elena", text: "Ребята, а как дела с выводами средств со сделок на карту?" },
+  { senderKey: "marina", text: "Выводила позавчера 15 тысяч, пришли на СБП за пару минут. Всё полностью автоматизировано." },
+  { senderKey: "dmitry", text: "Удобно. И налоги платить проще, когда есть детальная выписка из кабинета.", isReply: true },
+  { senderKey: "olga", text: "И никакой рутины с таблицами в Экселе. Всё хранится в облаке." },
+  { senderKey: "anna", text: "Эксель — прошлый век. Я веду 20 каналов чисто из Телеграм-интерфейса ИИSMM 🤖" },
+  { senderKey: "vlad", text: "20 каналов? Жесть, ты вообще спишь?", isReply: true },
+  { senderKey: "anna", text: "Я сплю, а планировщик ИИSMM постит круглосуточно по заранее настроенному контент-плану." },
+  { senderKey: "marina", text: "Слушайте, а лям ИИрок на месяц — это много или мало?" },
+  { senderKey: "ivan", text: "Этого хватает примерно на 150 лонгридов с детальной генерацией картинок. Более чем щедро.", isReply: true },
+  { senderKey: "katerina", text: "Да, у меня за месяц уходит от силы 400 тысяч токенов. Очень выгодно." },
+  { senderKey: "marina", text: "Ну всё, окончательно убедили! Иду жать кнопку 'Присоединиться' внизу!", isReply: true }
+];
+
+function TypewriterText({ text, speed = 30 }: { text: string; speed?: number }) {
+  const [displayed, setDisplayed] = useState("");
+
+  useEffect(() => {
+    let currentLen = 0;
+    setDisplayed("");
+    const intervalMs = 1000 / speed; // 30 cps -> ~33ms
+    const timer = setInterval(() => {
+      currentLen++;
+      if (currentLen <= text.length) {
+        setDisplayed(text.slice(0, currentLen));
+      } else {
+        clearInterval(timer);
+      }
+    }, intervalMs);
+
+    return () => clearInterval(timer);
+  }, [text, speed]);
+
+  return <span>{displayed}</span>;
+}
+
+export function SmmLiveChat({ onJoin }: { onJoin: () => void }) {
+  const [messages, setMessages] = useState<MessageItem[]>([]);
+  const chatContainerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    let scriptIdx = 0;
+    let timeoutId: any;
+
+    const addNextMessage = () => {
+      const idx = scriptIdx % CHAT_SCRIPTS.length;
+      const currentScript = CHAT_SCRIPTS[idx];
+      
+      let replyTo: MessageItem['replyTo'] = undefined;
+      if (currentScript.isReply) {
+        const prevIdx = (idx - 1 + CHAT_SCRIPTS.length) % CHAT_SCRIPTS.length;
+        const prevScript = CHAT_SCRIPTS[prevIdx];
+        const prevSender = CHAT_PARTICIPANTS[prevScript.senderKey];
+        if (prevSender) {
+          replyTo = {
+            name: prevSender.name,
+            role: prevSender.role,
+            text: prevScript.text
+          };
+        }
+      }
+
+      const newMsg: MessageItem = {
+        id: `msg-live-${Date.now()}-${idx}`,
+        senderKey: currentScript.senderKey,
+        text: currentScript.text,
+        timestamp: new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' }),
+        replyTo
+      };
+
+      setMessages(prev => {
+        const combined = [...prev, newMsg];
+        if (combined.length > 35) {
+          return combined.slice(combined.length - 35);
+        }
+        return combined;
+      });
+
+      scriptIdx++;
+
+      // Dynamic pacing: typing duration + read pause
+      const typingTimeMs = (currentScript.text.length / 30) * 1000;
+      const readPauseMs = 1200; // Comfortable pause
+      const nextDelayMs = Math.min(Math.max(typingTimeMs + readPauseMs, 3200), 6500);
+
+      timeoutId = setTimeout(addNextMessage, nextDelayMs);
+    };
+
+    // Start typing first message 400ms after load
+    timeoutId = setTimeout(addNextMessage, 400);
+
+    return () => clearTimeout(timeoutId);
+  }, []);
+
+  // Soft localized container-only scrolling (prevents jumping of entire page viewport)
+  useEffect(() => {
+    if (chatContainerRef.current) {
+      const c = chatContainerRef.current;
+      c.scrollTo({
+        top: c.scrollHeight,
+        behavior: 'smooth'
+      });
+    }
+    const scrollFallback = setTimeout(() => {
+      if (chatContainerRef.current) {
+        chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+      }
+    }, 120);
+    return () => clearTimeout(scrollFallback);
+  }, [messages]);
+
+  return (
+    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+      {/* Left Side: Active SMM experts listing (10 people) */}
+      <div className="lg:col-span-4 apple-liquid-glass rounded-3xl p-5 bg-white/45 border border-white/65 flex flex-col justify-start space-y-4 shadow-xl select-none">
+        <div className="flex items-center justify-between pb-3 border-b border-pink-100/60">
+          <div className="flex items-center gap-2">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-pink-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-pink-500"></span>
+            </span>
+            <h3 className="font-extrabold text-[#cb0080] text-xs uppercase tracking-wider">Участники в сети (10)</h3>
+          </div>
+          <span className="text-[10px] bg-sky-100 text-sky-850 px-2 py-0.5 rounded-full font-black tracking-wider uppercase font-mono border border-sky-200">LIVE-ЭФИР</span>
+        </div>
+
+        {/* Participant Grid/List */}
+        <div className="grid grid-cols-5 lg:grid-cols-1 gap-2 max-h-[140px] lg:max-h-[460px] overflow-y-auto no-scrollbar">
+          {Object.entries(CHAT_PARTICIPANTS).map(([key, p]) => {
+            const isTyping = p.status === "Печатает...";
+            return (
+              <div key={key} className="flex lg:flex-row flex-col items-center gap-2.5 p-1.5 lg:px-2.5 rounded-xl hover:bg-white/65 transition-all border border-transparent lg:hover:border-pink-100/40">
+                {/* Avatar with live status dot */}
+                <div className="relative shrink-0">
+                  <img src={p.avatar} alt={p.name} className="w-8 h-8 lg:w-9 lg:h-9 rounded-full object-cover border border-slate-200/50 shadow-xs" referrerPolicy="no-referrer" />
+                  <span className={`absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full border-2 border-white ${isTyping ? 'bg-pink-500 animate-pulse' : 'bg-emerald-500'}`} />
+                </div>
+
+                {/* Desktop Label Details */}
+                <div className="hidden lg:block text-left min-w-0 flex-1">
+                  <div className="flex items-center justify-between">
+                    <span className="font-extrabold text-xs text-slate-800 truncate block leading-tight">{p.name}</span>
+                  </div>
+                  <div className="flex items-center justify-between mt-0.5">
+                    <span className="text-[9px] text-slate-400 font-extrabold uppercase">{p.role}</span>
+                    <span className={`text-[9px] font-extrabold uppercase ${isTyping ? 'text-pink-600 font-black animate-pulse' : 'text-slate-400 font-medium'}`}>{p.status}</span>
+                  </div>
+                </div>
+
+                {/* Mobile Tooltip/Truncated Label */}
+                <span className="lg:hidden text-[8px] font-black text-slate-700 truncate max-w-full text-center mt-1">{p.name.split(' ')[0]}</span>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Right Side: Interactive Real-time Chat Timeline in Light Apple Liquid Glass theme */}
+      <div className="lg:col-span-8 flex flex-col justify-between apple-liquid-glass rounded-3xl bg-white/60 backdrop-blur-xl text-slate-800 border border-white/80 p-4 lg:p-6 shadow-xl relative min-h-[500px] lg:min-h-[555px]">
+        {/* Screen Monitor Glow Header */}
+        <div className="flex items-center justify-between pb-3 border-b border-pink-100/40 mb-4 shrink-0">
+          <div className="flex items-center gap-2.5">
+            <div className="w-2.5 h-2.5 rounded-full bg-[#cb0080] animate-pulse shadow-sm" style={{ boxShadow: '0 0 10px #cb0080' }} />
+            <div className="text-left">
+              <span className="text-[10px] text-[#cb0080] font-black uppercase block tracking-widest font-mono">ОБЩИЙ ЧАТ СООБЩЕСТВА ИИSMM</span>
+              <span className="text-[11px] text-slate-500 font-bold block mt-0.5">Свободные диалоги администраторов</span>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 font-mono text-[9px]">
+            <span className="px-2.5 py-1 rounded-xl bg-pink-50 text-pink-700 font-extrabold border border-pink-100/70">Темы: Автопостинг / Биржа / ИИ</span>
+          </div>
+        </div>
+
+        {/* Scrolling bubbles list */}
+        <div ref={chatContainerRef} className="flex-1 overflow-y-auto space-y-4 pr-1 scrollbar-thin scrollbar-thumb-pink-200 scrollbar-track-transparent max-h-[350px] lg:max-h-[390px] min-h-[290px]">
+          <AnimatePresence initial={false}>
+            {messages.map((m) => {
+              const sender = CHAT_PARTICIPANTS[m.senderKey] || CHAT_PARTICIPANTS.alex;
+              return (
+                <motion.div
+                  key={m.id}
+                  initial={{ opacity: 0, x: -15, y: 10, scale: 0.98 }}
+                  animate={{ opacity: 1, x: 0, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, x: -5 }}
+                  transition={{ type: "spring", stiffness: 350, damping: 25 }}
+                  className="flex flex-col space-y-1.5 max-w-[92%] lg:max-w-[85%] text-left"
+                >
+                  {/* Sender name & details ABOVE the bubble */}
+                  <div className="flex items-center gap-2 pl-3 select-none">
+                    <span className="font-extrabold text-[11px] text-slate-800 tracking-tight">{sender.name}</span>
+                    <span className="text-[8px] font-black uppercase tracking-wider px-1.5 py-0.2 rounded-md bg-pink-100/60 text-pink-700 border border-pink-200/50">
+                      {sender.role}
+                    </span>
+                    <span className="text-[9px] text-slate-400 font-mono font-medium">{m.timestamp}</span>
+                  </div>
+
+                  {/* Bubble + Avatar */}
+                  <div className="flex items-start gap-2.5">
+                    <img
+                      src={sender.avatar}
+                      alt={sender.name}
+                      className="w-8 h-8 rounded-full object-cover shrink-0 border border-white shadow-md"
+                      referrerPolicy="no-referrer"
+                    />
+                    <div className="p-3.5 px-4 rounded-3xl rounded-tl-none bg-white/75 backdrop-blur-md border border-white/95 text-xs text-slate-700 font-medium leading-relaxed shadow-sm hover:shadow-md hover:bg-white/90 transition-all duration-200 w-full relative">
+                      {/* Reply Quote Block inside bubble */}
+                      {m.replyTo && (
+                        <div className="mb-2 p-2 rounded-xl bg-pink-50/50 border-l-2 border-[#cb0080] text-[10px] text-slate-600 flex flex-col gap-0.5 pointer-events-none select-none">
+                          <span className="font-extrabold text-[#cb0080] text-[9px] tracking-wide uppercase">{m.replyTo.name} • {m.replyTo.role}</span>
+                          <span className="truncate text-slate-500 italic">"{m.replyTo.text}"</span>
+                        </div>
+                      )}
+
+                      {/* Typewriter text animating 30 chars/sec */}
+                      <TypewriterText text={m.text} />
+                    </div>
+                  </div>
+                </motion.div>
+              );
+            })}
+          </AnimatePresence>
+        </div>
+
+        {/* Static Simulated Footer warning that they are viewing */}
+        <div className="mt-4 pt-3 border-t border-pink-100/60 shrink-0 flex flex-col sm:flex-row items-center justify-between gap-3 bg-white/75 backdrop-blur-md p-3.5 rounded-2xl border border-white/90 shadow-xs">
+          <div className="text-left text-[11px] text-slate-600">
+            <span className="font-bold text-slate-800 block">💬 Вы просматриваете трансляцию эфира SMM-чата.</span>
+            <span className="text-[10px] text-slate-500 block mt-0.5">Пройдите авторизацию в 1 клик, чтобы подключить ИИ к своим каналам бесплатно.</span>
+          </div>
+          <button
+            onClick={onJoin}
+            className="w-full sm:w-auto px-6 py-3 hover:scale-102 active:scale-98 text-white text-[10px] uppercase font-black rounded-xl shadow-lg transition-all cursor-pointer flex items-center justify-center gap-2 border border-white/10 shrink-0"
+            style={{ background: 'linear-gradient(90deg, #f97316 0%, #ec4899 50%, #38bdf8 100%)' }}
+          >
+            <span>Присоединиться к чату 🚀</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function LandingPage({ onLogin, user, onUpdateUser, currentPath, onNavigate }: LandingPageProps) {
-  const pathToTab = (path: string): 'abilities' | 'blog' | 'ai_assistants' | 'canvas' | 'prices' | 'projects' | 'academy' | 'market_exchange' => {
+  const pathToTab = (path: string): 'abilities' | 'blog' | 'ai_assistants' | 'chat' | 'prices' | 'projects' | 'academy' | 'market_exchange' => {
     if (path.startsWith('/blog')) return 'blog';
     switch (path) {
       case '/main':
@@ -720,7 +1027,7 @@ export default function LandingPage({ onLogin, user, onUpdateUser, currentPath, 
       case '/blog': return 'blog';
       case '/ai': return 'ai_assistants';
       case '/market-exchange': return 'market_exchange';
-      case '/canvas': return 'canvas';
+      case '/chat': return 'chat';
       case '/prices': return 'prices';
       case '/projects': return 'projects';
       case '/academy': return 'academy';
@@ -734,7 +1041,7 @@ export default function LandingPage({ onLogin, user, onUpdateUser, currentPath, 
       case 'blog': return '/blog';
       case 'ai_assistants': return '/ai';
       case 'market_exchange': return '/market-exchange';
-      case 'canvas': return '/canvas';
+      case 'chat': return '/chat';
       case 'prices': return '/prices';
       case 'projects': return '/projects';
       case 'academy': return '/academy';
@@ -744,7 +1051,7 @@ export default function LandingPage({ onLogin, user, onUpdateUser, currentPath, 
 
   const activeTab = pathToTab(currentPath);
   
-  const setActiveTab = (tab: 'abilities' | 'blog' | 'ai_assistants' | 'canvas' | 'prices' | 'projects' | 'academy' | 'market_exchange') => {
+  const setActiveTab = (tab: 'abilities' | 'blog' | 'ai_assistants' | 'chat' | 'prices' | 'projects' | 'academy' | 'market_exchange') => {
     onNavigate(tabToPath(tab));
   };
 
@@ -939,7 +1246,7 @@ export default function LandingPage({ onLogin, user, onUpdateUser, currentPath, 
     { key: 'blog', label: 'Наш Блог', icon: <BookOpen className="w-3.5 h-3.5" /> },
     { key: 'ai_assistants', label: 'AI Ассистенты', icon: <Sparkles className="w-3.5 h-3.5" /> },
     { key: 'market_exchange', label: 'ИИ Биржа 🛡', icon: <ShoppingBag className="w-3.5 h-3.5 text-rose-500" /> },
-    { key: 'canvas', label: 'Холст 🎨', icon: <Brush className="w-3.5 h-3.5" /> },
+    { key: 'chat', label: 'Чат 💬', icon: <MessageSquare className="w-3.5 h-3.5" /> },
     { key: 'prices', label: 'Тарифы', icon: <Trophy className="w-3.5 h-3.5" /> },
     { key: 'academy', label: 'Академия', icon: <GraduationCap className="w-3.5 h-3.5" /> },
   ] as const;
@@ -1132,21 +1439,21 @@ export default function LandingPage({ onLogin, user, onUpdateUser, currentPath, 
                       </p>
                       
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 text-xs text-slate-700 font-bold pt-1">
-                        <div className="flex items-center gap-2 bg-white/60 p-2.5 rounded-xl border border-slate-150/40">
-                          <Check className="w-4 h-4 text-orange-500" />
-                          <span>Gemini ИИ-Копирайтер 24/7</span>
+                        <div className="flex items-center gap-2 bg-white/60 p-2.5 rounded-xl border" style={{ borderColor: '#cb0080', color: '#cb0080' }}>
+                          <Check className="w-4 h-4 text-[#cb0080]" style={{ color: '#cb0080' }} />
+                          <span style={{ color: '#cb0080' }}>Gemini ИИ-Копирайтер 24/7</span>
                         </div>
-                        <div className="flex items-center gap-2 bg-white/60 p-2.5 rounded-xl border border-slate-150/40">
-                          <Check className="w-4 h-4 text-pink-500" />
-                          <span>Мультипостинг в 1 Клик</span>
+                        <div className="flex items-center gap-2 bg-white/60 p-2.5 rounded-xl border border-slate-150/40" style={{ color: '#cb0080' }}>
+                          <Check className="w-4 h-4 text-[#cb0080]" style={{ color: '#cb0080' }} />
+                          <span style={{ color: '#cb0080', borderColor: '#cb0080' }}>Мультипостинг в 1 Клик</span>
                         </div>
-                        <div className="flex items-center gap-2 bg-white/60 p-2.5 rounded-xl border border-slate-150/40">
-                          <Check className="w-4 h-4 text-indigo-500" />
-                          <span>Escrow Безопасная Биржа</span>
+                        <div className="flex items-center gap-2 bg-white/60 p-2.5 rounded-xl border font-bold" style={{ color: '#cb0080', borderColor: '#cb0080' }}>
+                          <Check className="w-4 h-4 text-[#cb0080]" style={{ color: '#cb0080' }} />
+                          <span style={{ color: '#cb0080' }}>Escrow Безопасная Биржа</span>
                         </div>
-                        <div className="flex items-center gap-2 bg-white/60 p-2.5 rounded-xl border border-slate-150/40">
-                          <Check className="w-4 h-4 text-green-500" />
-                          <span>Маркировка ОРД Автоматом</span>
+                        <div className="flex items-center gap-2 bg-white/60 p-2.5 rounded-xl border font-bold" style={{ borderColor: '#cb0080', color: '#cb0080' }}>
+                          <Check className="w-4 h-4 text-[#cb0080]" style={{ color: '#cb0080' }} />
+                          <span style={{ color: '#cb0080' }}>Маркировка ОРД Автоматом</span>
                         </div>
                       </div>
 
@@ -1189,7 +1496,7 @@ export default function LandingPage({ onLogin, user, onUpdateUser, currentPath, 
                 {/* ADVANTAGES — ПРЕИМУЩЕСТВА СЕКЦИЯ */}
                 <div id="advantages-section" className="pt-20 space-y-8 max-w-7xl mx-auto px-4">
                   <div className="text-center max-w-xl mx-auto space-y-3">
-                    <span className="px-3 py-1 bg-sky-100 text-sky-850 rounded-full text-[10px] font-black uppercase tracking-widest border border-sky-200">БЕЗУПРЕЧНОЕ КАЧЕСТВО</span>
+                    <span className="px-3 py-1 bg-sky-100 rounded-full text-[10px] font-black uppercase tracking-widest border border-sky-200" style={{ color: '#cb0080' }}>БЕЗУПРЕЧНОЕ КАЧЕСТВО</span>
                     <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-gradient-header uppercase">Преимущества работы с ИИSMM</h2>
                     <p className="text-slate-500 text-xs sm:text-xs">Наши ключевые ценности и инновационные преимущества, которые выводят ваш бизнес в топ.</p>
                   </div>
@@ -1591,6 +1898,25 @@ export default function LandingPage({ onLogin, user, onUpdateUser, currentPath, 
               </div>
             )}
 
+            {/* INFORMATIVE SECTION: ЖИВОЙ SMM ЧАТ (LIVE CHAT) */}
+            {activeTab === 'chat' && (
+              <div className="space-y-8 py-4">
+                <div className="text-center max-w-2xl mx-auto space-y-3">
+                  <span className="px-3 py-1 bg-pink-100 rounded-full text-[10px] font-black uppercase tracking-widest border border-pink-200" style={{ color: '#cb0080', backgroundColor: '#fdf2f8' }}>
+                    Прямой Эфир: SMM Обсуждения
+                  </span>
+                  <h2 className="text-3xl font-extrabold tracking-tight text-gradient-header">
+                    Живое Общение Администраторов и ИИ
+                  </h2>
+                  <p className="text-slate-500 text-xs max-w-xl mx-auto leading-relaxed">
+                    Следите за ответами и диалогами 10 участников в прямом эфире об автоматизации автопостинга, закупках рекламы, безопасных сделках в боте <a href="https://t.me/iismmAIbot" target="_blank" rel="noopener noreferrer" className="text-pink-600 hover:text-pink-700 underline font-semibold">@iismmAIbot</a> и распределении стартовых ИИрок.
+                  </p>
+                </div>
+
+                <SmmLiveChat onJoin={() => setShowTelegramModal(true)} />
+              </div>
+            )}
+
             {/* INFORMATIVE SECTION 9: ТАРИФЫ */}
             {activeTab === 'prices' && (
               <div className="space-y-8 py-4">
@@ -1738,31 +2064,60 @@ export default function LandingPage({ onLogin, user, onUpdateUser, currentPath, 
                 }
               };
 
-              // Simulated AI tutor response generator
-              const handleAskAiCurator = () => {
-                if (!customSmmQuestion.trim()) return;
+              // Real ProTalk AI tutor integration with local backup fallback
+              const handleAskAiCurator = async () => {
+                const questionText = customSmmQuestion.trim();
+                if (!questionText) return;
                 setAiAnswering(true);
                 setAiAnswerResult('');
                 
-                setTimeout(() => {
-                  const query = customSmmQuestion.toLowerCase();
-                  let response = `🤖 ИИ-Куратор Академии ИИSMM: Рад помочь! По теме "${currentLesson.title}" сообщаю следующее:\n\n`;
+                try {
+                  const pSystemInstruction = `Ты — ИИ-Преподаватель Академии ИИSMM по SMM и автоматизации. Твоя роль — помогать пользователю с курсом "${currentCourse.title}" и уроком "${currentLesson.title}". Давай профессиональные, структурированные ответы средней длины в стиле дружелюбного преподавателя-наставника. Твой ответ должен быть полезным, включать практический совет по продвижению или заработку на блогах, использовать Markdown для акцентов и списков. Отвечай на русском языке. Моделируй свой ответ как авторитетный Куратор курса. Если спрашивают про бота, напоминай про бота @iismmAIbot.`;
+                  
+                  const response = await fetch('/api/ai/chat', {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                      prompt: questionText,
+                      history: [],
+                      systemInstruction: pSystemInstruction
+                    })
+                  });
+
+                  if (!response.ok) {
+                    throw new Error('Network error requesting AI tutor');
+                  }
+
+                  const data = await response.json();
+                  if (data && data.text) {
+                    setAiAnswerResult(data.text);
+                  } else {
+                    throw new Error('Empty AI response');
+                  }
+                } catch (err) {
+                  console.warn('ProTalk AI Curator chat failed, using local specialized fallback response... Error details:', err);
+                  // Dynamic backup simulation
+                  const query = questionText.toLowerCase();
+                  let fallbackAns = `🤖 ИИ-Куратор Академии ИИSMM (Локальный режим): Рад помочь! По теме "${currentLesson.title}" сообщаю следующее:\n\n`;
                   
                   if (query.includes('канал') || query.includes('подключ') || query.includes('tg') || query.includes('vk')) {
-                    response += `Для надежного кросспостинга обязательно проверьте, что боту @iismmAIbot даны права администратора на "Публикацию сообщений" и "Редактирование". Без этого API Telegram вернет ошибку доступа. Наша система обрабатывает отправки мгновенно или в запланированное вами время.`;
+                    fallbackAns += `Для надежного кросспостинга обязательно проверьте, что боту @iismmAIbot даны права администратора на "Публикацию сообщений" и "Редактирование". Без этого API Telegram вернет ошибку доступа. Наша система обрабатывает отправки мгновенно или в запланированное вами время.`;
                   } else if (query.includes('вотермарк') || query.includes('водян') || query.includes('картин')) {
-                    response += `Защищать визуал крайне полезно в Одноклассниках и VK, где встроенные алгоритмы Ленты ("Прометей" / "Умная лента") проверяют графический шум на уникальность. Минимальный водяной знак в правом нижнем углу со значением прозрачности 25% — наилучшее решение для сохранения эстетики паблика.`;
+                    fallbackAns += `Защищать визуал крайне полезно в Одноклассниках и VK, где встроенные алгоритмы Ленты ("Прометей" / "Умная лента") проверяют графический шум на уникальность. Минимальный водяной знак в правом нижнем углу со значением прозрачности 25% — наилучшее решение для сохранения эстетики паблика.`;
                   } else if (query.includes('деньги') || query.includes('комисси') || query.includes('вывод')) {
-                    response += `Сделки по покупке и продаже تبلیغات (рекламы) на нашей бирже защищены смарт-депонированием. Рекламодатель спокоен, что деньги спишутся только за реальный пост, провисевший в топе нужный срок. Комиссия 25% используется для компенсации серверов и разработки новых ИИ-ассистентов.`;
+                    fallbackAns += `Сделки по покупке и продаже تبلیغات (рекламы) на нашей бирже защищены смарт-депонированием. Рекламодатель спокоен, что деньги спишутся только за реальный пост, провисевший в топе нужный срок. Комиссия 25% используется для компенсации серверов и разработки новых ИИ-ассистентов.`;
                   } else if (query.includes('рерайт') || query.includes('репост') || query.includes('копир')) {
-                    response += `ИИ-Рерайтер в ИИSMM использует релевантные языковые модели со SMM-приоритетом. Он не просто заменяет слова синонимами, а форматирует лонгрид по стилю AIDA, расставляет эмодзи, выделяет абзацы жирным и структурирует списки по канонам эффективных рекламных постов.`;
+                    fallbackAns += `ИИ-Рерайтер в ИИSMM использует релевантные языковые модели со SMM-приоритетом. Он не просто заменяет слова синонимами, а форматирует лонгрид по стилю AIDA, расставляет эмодзи, выделяет абзацы жирным и структурирует списки по канонам эффективных рекламных постов.`;
                   } else {
-                    response += `Отличный рабочий вопрос! На практике в SMM для старта органического продвижения используйте бесплатные проекты взаимного пиара папок. Добавьте в папку 5 смежных блогов, запустите взаимные рассылки, и вы получите лояльную аудиторию абсолютно бесплатно в первый же день сотрудничества!`;
+                    fallbackAns += `Отличный рабочий вопрос! На практике в SMM для старта органического продвижения используйте бесплатные проекты взаимного пиара папок. Добавьте в папку 5 смежных блогов, запустите взаимные рассылки, и вы получите лояльную аудиторию абсолютно бесплатно в первый же день сотрудничества!`;
                   }
                   
-                  setAiAnswerResult(response);
+                  setAiAnswerResult(fallbackAns);
+                } finally {
                   setAiAnswering(false);
-                }, 1000);
+                }
               };
 
               return (
@@ -1864,9 +2219,25 @@ export default function LandingPage({ onLogin, user, onUpdateUser, currentPath, 
                           </button>
                         </div>
 
-                        {aiAnswerResult && (
-                          <div className="p-3.5 bg-orange-50/70 border border-orange-100 rounded-2xl text-[11px] text-slate-800 leading-relaxed font-semibold font-sans whitespace-pre-wrap animate-fade-in shadow-2xs">
-                            {aiAnswerResult}
+                        {aiAnswering && (
+                          <div className="p-4 bg-slate-50 border border-slate-100 rounded-2xl animate-pulse flex flex-col gap-2 shadow-2xs">
+                            <div className="flex items-center gap-1.5">
+                              <span className="w-1.5 h-1.5 rounded-full bg-pink-500 animate-bounce duration-1000 delay-100" />
+                              <span className="w-1.5 h-1.5 rounded-full bg-orange-400 animate-bounce duration-1000 delay-200" />
+                              <span className="w-1.5 h-1.5 rounded-full bg-sky-400 animate-bounce duration-1000 delay-300" />
+                              <span className="text-[10px] text-slate-400 font-bold ml-1 uppercase tracking-wider font-mono">Составляю разбор...</span>
+                            </div>
+                            <div className="space-y-1.5">
+                              <div className="h-2 bg-slate-200/85 rounded-full w-[95%] animate-pulse" />
+                              <div className="h-2 bg-slate-200/85 rounded-full w-[85%] animate-pulse" />
+                              <div className="h-2 bg-slate-200/85 rounded-full w-[40%] animate-pulse" />
+                            </div>
+                          </div>
+                        )}
+
+                        {!aiAnswering && aiAnswerResult && (
+                          <div className="p-4 bg-orange-50/70 border border-orange-100 rounded-2xl text-[11px] text-slate-800 leading-relaxed font-semibold animate-fade-in shadow-2xs">
+                            <MarkdownRenderer content={aiAnswerResult} />
                           </div>
                         )}
                       </div>
@@ -2018,7 +2389,7 @@ export default function LandingPage({ onLogin, user, onUpdateUser, currentPath, 
             Вход за 1 Секунду без паролей через Telegram
           </h3>
           <p className="text-xs text-slate-500 max-w-xl mx-auto leading-relaxed">
-            {renderWithBold("Мы начислим вам стартовые **1,000,000 ИИрок (токенов)** и подключим до 3 каналов на Free-тарифе абсолютно бесплатно без привязки карт!")}
+            Мы начислим вам стартовые <strong className="font-extrabold" style={{ color: '#cb0080' }}>1,000,000 ИИрок (токенов)</strong> и подключим до 3 каналов на Free-тарифе абсолютно бесплатно без привязки карт!
           </p>
           <div className="flex justify-center pt-2">
             <button

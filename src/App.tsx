@@ -52,7 +52,7 @@ export default function App() {
   useEffect(() => {
     const handleLocationChange = () => {
       const path = window.location.pathname;
-      const landingPaths = ['/main', '/blog', '/ai', '/market-exchange', '/canvas', '/prices', '/projects', '/academy'];
+      const landingPaths = ['/main', '/blog', '/ai', '/market-exchange', '/chat', '/prices', '/projects', '/academy'];
       const appPaths = ['/start', '/channels', '/posts', '/market', '/bundles', '/profile', '/admin'];
       const validPaths = [...appPaths, ...landingPaths];
 

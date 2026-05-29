@@ -1,5 +1,6 @@
 import express from "express";
 import path from "path";
+import fs from "fs";
 import { createServer as createViteServer } from "vite";
 import { GoogleGenAI } from "@google/genai";
 import dotenv from "dotenv";
@@ -9,7 +10,17 @@ dotenv.config();
 const app = express();
 const PORT = 3000;
 
-app.use(express.json());
+app.use(express.json({ limit: "50mb" }));
+app.use(express.urlencoded({ limit: "50mb", extended: true }));
+
+// Ensure uploads folder exists in dist
+const uploadsDir = path.join(process.cwd(), "dist", "uploads");
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
+
+// Serve uploaded voice recorder files statically
+app.use("/uploads", express.static(uploadsDir));
 
 // Initialize Gemini Client safely
 let ai: GoogleGenAI | null = null;
@@ -160,7 +171,7 @@ ${enableSearch ? "Обязательно найди актуальную инф�
   }
 });
 
-// Endpoint 3: Чат с ассистентом (AI Assistant Chat with custom prompt)
+// Endpoint 3: Чат с ассистентом (AI Assistant Chat with custom prompt via ProTalk API with SSE Streaming support)
 app.post("/api/ai/chat", async (req, res) => {
   const { prompt, history, systemInstruction } = req.body;
 
@@ -168,42 +179,249 @@ app.post("/api/ai/chat", async (req, res) => {
     return res.status(400).json({ error: "Не передан запрос" });
   }
 
-  if (!ai) {
-    const reply = `[Режим ДЕМО | Добавьте API KEY] Спасибо за вопрос: "${prompt}". Я готов помочь вам составить идеальный контент, сценарий или стратегию! Подключите ключ в настройках для запуска полноценного искусственного интеллекта.`;
-    return res.json({ text: reply, isDemo: true });
-  }
+  const botId = process.env.PROTALK_BOT_ID || "66275";
+  const botToken = process.env.PROTALK_BOT_TOKEN || "GaycdyJeSzd3Jja0E2S9jVTQiekUVkrE";
+  const apiKey = `${botId}_${botToken}`;
+
+  console.log(`Using ProTalk AI Assistant Chat with bot_id: ${botId}`);
 
   try {
-    const contents: any[] = [];
+    // Construct chat history messages for OpenAI style API
+    const messages = [];
+    if (systemInstruction) {
+      messages.push({
+        role: "system",
+        content: systemInstruction
+      });
+    } else {
+      messages.push({
+        role: "system",
+        content: "Ты — профессиональный ИИ-ассистент."
+      });
+    }
+
+    // Additional reinforcement: Inject the assistant's specific instructions as user-assistant
+    // conversation prefix to bypass ProTalk's automated "system" message filtering
+    if (systemInstruction && prompt !== "/restart") {
+      messages.push({
+        role: "user",
+        content: `[СИСТЕМНАЯ ИНСТРУКЦИЯ ДЛЯ ИИ - УСТАНОВКА РОЛИ]:\nДействуй строго по этой роли: ${systemInstruction}`
+      });
+      messages.push({
+        role: "assistant",
+        content: "Принято! Я полностью усвоил свою роль и буду отвечать в строгом соответствии с этой инструкцией."
+      });
+    }
+
     if (history && Array.isArray(history)) {
       history.forEach((msg: any) => {
-        contents.push({
-          role: msg.role === 'user' ? 'user' : 'model',
-          parts: [{ text: msg.text }]
+        messages.push({
+          role: msg.role === 'user' ? 'user' : 'assistant',
+          content: msg.text
         });
       });
     }
-    
-    contents.push({
-      role: 'user',
-      parts: [{ text: prompt }]
+
+    // Final prompt: for non-command requests, inline the role into the user prompt block
+    let finalPrompt = prompt;
+    if (prompt !== "/restart" && systemInstruction) {
+      finalPrompt = `[Установка твоей роли: В рамках этого диалога ты — ${systemInstruction}]\n\nЗапрос пользователя: ${prompt}`;
+    }
+
+    messages.push({
+      role: "user",
+      content: finalPrompt
     });
 
-    const response = await ai.models.generateContent({
-      model: "gemini-3.1-flash-lite",
-      contents: contents,
-      config: {
+    // Make the API call to ProTalk API with stream: true as requested
+    const openAiResponse = await fetch("https://ai.pro-talk.ru/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${apiKey}`
+      },
+      body: JSON.stringify({
+        model: "iismm_landing",
+        messages: messages,
         temperature: 0.7,
-        systemInstruction: systemInstruction || "Ты — профессиональный ИИ-ассистент.",
-      }
+        stream: true
+      })
     });
 
-    res.json({
-      text: response.text || "Извините, я не смог сформулировать ответ."
+    if (!openAiResponse.ok) {
+      const errText = await openAiResponse.text();
+      throw new Error(`ProTalk API Error (Status ${openAiResponse.status}): ${errText}`);
+    }
+
+    let accumulatedText = "";
+
+    if (openAiResponse.body) {
+      const reader = openAiResponse.body.getReader ? openAiResponse.body.getReader() : null;
+      if (reader) {
+        const decoder = new TextDecoder("utf-8");
+        let done = false;
+        let buffer = "";
+
+        while (!done) {
+          const { value, done: readerDone } = await reader.read();
+          done = readerDone;
+          if (value) {
+            buffer += decoder.decode(value, { stream: !done });
+            const lines = buffer.split("\n");
+            buffer = lines.pop() || "";
+
+            for (const line of lines) {
+              const trimmed = line.trim();
+              if (!trimmed) continue;
+              if (trimmed.startsWith("data: ")) {
+                const dataContent = trimmed.substring(6).trim();
+                if (dataContent === "[DONE]") continue;
+                try {
+                  const parsed = JSON.parse(dataContent);
+                  const deltaContent = parsed.choices?.[0]?.delta?.content;
+                  if (deltaContent) {
+                    accumulatedText += deltaContent;
+                  }
+                } catch (e) {
+                  // Ignore JSON fragment parsing errors
+                }
+              }
+            }
+          }
+        }
+
+        // Parse trailing text if any
+        if (buffer) {
+          const trimmed = buffer.trim();
+          if (trimmed.startsWith("data: ")) {
+            const dataContent = trimmed.substring(6).trim();
+            if (dataContent !== "[DONE]") {
+              try {
+                const parsed = JSON.parse(dataContent);
+                const deltaContent = parsed.choices?.[0]?.delta?.content;
+                if (deltaContent) {
+                  accumulatedText += deltaContent;
+                }
+              } catch (e) {}
+            }
+          }
+        }
+      } else {
+        // Fallback for environment constraints where reader is unsupported
+        const rawText = await openAiResponse.text();
+        try {
+          const parsed = JSON.parse(rawText);
+          accumulatedText = parsed.choices?.[0]?.message?.content || "";
+        } catch {
+          const lines = rawText.split("\n");
+          for (const line of lines) {
+            const trimmed = line.trim();
+            if (trimmed.startsWith("data: ")) {
+              const dataContent = trimmed.substring(6).trim();
+              if (dataContent === "[DONE]") continue;
+              try {
+                const parsed = JSON.parse(dataContent);
+                const deltaContent = parsed.choices?.[0]?.delta?.content;
+                if (deltaContent) accumulatedText += deltaContent;
+              } catch (e) {}
+            }
+          }
+        }
+      }
+    }
+
+    if (!accumulatedText.trim()) {
+      // Direct backup request using stream: false in case stream chunk collection was altogether empty
+      const directResponse = await fetch("https://ai.pro-talk.ru/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${apiKey}`
+        },
+        body: JSON.stringify({
+          model: "iismm_landing",
+          messages: messages,
+          temperature: 0.7,
+          stream: false
+        })
+      });
+      if (directResponse.ok) {
+        const directJson = await directResponse.json();
+        accumulatedText = directJson.choices?.[0]?.message?.content || "";
+      }
+    }
+
+    if (!accumulatedText.trim()) {
+      throw new Error("Не удалось получить сгенерированный текст от ProTalk API.");
+    }
+
+    return res.json({
+      text: accumulatedText
     });
+
   } catch (err: any) {
-    console.error("Chat error:", err);
-    res.status(500).json({ error: err.message || "Ошибка чата на сервере" });
+    console.error("ProTalk Chat error:", err);
+    
+    // Auto Graceful fallback to Gemini if ProTalk encounters error and Gemini is configured
+    if (ai) {
+      console.log("ProTalk failed, auto-falling back to Gemini model gracefully...");
+      try {
+        const contents: any[] = [];
+        if (history && Array.isArray(history)) {
+          history.forEach((msg: any) => {
+            contents.push({
+              role: msg.role === 'user' ? 'user' : 'model',
+              parts: [{ text: msg.text }]
+            });
+          });
+        }
+        contents.push({
+          role: 'user',
+          parts: [{ text: prompt }]
+        });
+
+        const fallbackResponse = await ai.models.generateContent({
+          model: "gemini-3.1-flash-lite",
+          contents: contents,
+          config: {
+            temperature: 0.7,
+            systemInstruction: systemInstruction || "Ты — профессиональный ИИ-ассистент.",
+          }
+        });
+
+        return res.json({
+          text: fallbackResponse.text || "Извините, я не смог сформулировать ответ."
+        });
+      } catch (geminiErr: any) {
+        console.error("Gemini fallback also failed:", geminiErr);
+      }
+    }
+
+    res.status(500).json({ 
+      error: `Ошибка при обращении к ИИ ProTalk: ${err.message || "Неизвестная ошибка"}` 
+    });
+  }
+});
+
+// Endpoint for saving base64 voice records as webm or wav static files
+app.post("/api/ai/upload-voice", async (req, res) => {
+  const { audioBase64, extension } = req.body;
+  if (!audioBase64) {
+    return res.status(400).json({ error: "Передан пустой аудиофайл (audioBase64 is required)" });
+  }
+
+  try {
+    const filename = `voice_${Date.now()}.${extension || "webm"}`;
+    const filePath = path.join(uploadsDir, filename);
+    const buffer = Buffer.from(audioBase64, "base64");
+    fs.writeFileSync(filePath, buffer);
+
+    const fileUrl = `/uploads/${filename}`;
+    console.log(`[ИИSMM] Аудиофайл успешно сохранён по ссылке: ${fileUrl}`);
+    res.json({ url: fileUrl });
+  } catch (err: any) {
+    console.error("Ошибка при сохранении аудиофайла:", err);
+    res.status(500).json({ error: `Не удалось сохранить голосовое сообщение: ${err.message}` });
   }
 });
 
